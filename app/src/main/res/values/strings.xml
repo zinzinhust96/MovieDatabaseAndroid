@@ -1,0 +1,37 @@
+<resources>
+    <string name="app_name">Movie Database</string>
+    <string name="action_settings">Settings</string>
+    <string name="search_title">Search</string>
+    <string name="search_hint">Search IMDb</string>
+    <string name="title_activity_search">Search Activity</string>
+    <string name="search_menu">Search</string>
+    <string name="title_search_result_activity">Search Result</string>
+    <string name="title_activity_home">Home</string>
+
+    <string-array name="menu_array">
+        <item>Home</item>
+        <item>Movies</item>
+        <item>Celebrities</item>
+        <item>Your Watchlist</item>
+    </string-array>
+
+    <string-array name="genre_array">
+        <item>Action</item>
+        <item>Adventure</item>
+        <item>Animation</item>
+        <item>Comedy</item>
+        <item>Crime</item>
+        <item>Drama</item>
+    </string-array>
+    <string name="drawer_open">Open navigation drawer</string>
+    <string name="drawer_close">Close navigation drawer</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="action_sign_in">Sign in</string>
+    <string name="menu_profile">User profile</string>
+    <string name="action_create_account">Create Account</string>
+    <string name="error_field_require">This field is required</string>
+    <string name="error_password_length">Password must be at least 5 characters</string>
+    <string name="error_invalid_email">The email address is invalid</string>
+</resources>
