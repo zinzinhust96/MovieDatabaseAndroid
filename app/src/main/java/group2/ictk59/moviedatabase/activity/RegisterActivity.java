@@ -45,6 +45,7 @@ public class RegisterActivity extends BaseActivity {
         btCreateAcc.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                showProgress(true);
                 etEmail.setError(null);
                 etUsername.setError(null);
                 etPassword.setError(null);
@@ -78,6 +79,7 @@ public class RegisterActivity extends BaseActivity {
 
                 if (cancel){
                     focusView.requestFocus();
+                    showProgress(false);
                 }else{
                     final JsonObject user = new JsonObject();
                     user.addProperty(Constants.USERNAME, username);
@@ -114,6 +116,7 @@ public class RegisterActivity extends BaseActivity {
                                             Toast.makeText(RegisterActivity.this, "Successfully registered. Hello " + username + "!", Toast.LENGTH_LONG).show();
                                             finish();
                                         }else{
+                                            showProgress(false);
                                             Toast.makeText(RegisterActivity.this, jsonObject.getString("message"), Toast.LENGTH_LONG).show();
                                         }
                                     } catch (JSONException e1) {
@@ -132,6 +135,11 @@ public class RegisterActivity extends BaseActivity {
                 startActivity(new Intent(RegisterActivity.this, LoginActivity.class));
             }
         });
+    }
+
+    private void showProgress(final boolean isShow){
+        findViewById(R.id.login_progress).setVisibility(isShow ? View.VISIBLE : View.GONE);
+        findViewById(R.id.loginForm).setVisibility(isShow ? View.GONE : View.VISIBLE);
     }
 
     private boolean isPasswordValid(String password){

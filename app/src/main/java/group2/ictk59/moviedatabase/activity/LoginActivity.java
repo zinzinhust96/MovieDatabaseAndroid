@@ -43,6 +43,7 @@ public class LoginActivity extends BaseActivity {
         btSignIn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                showProgress(true);
                 etUsername.setError(null);
                 etPassword.setError(null);
 
@@ -64,6 +65,7 @@ public class LoginActivity extends BaseActivity {
 
                 if (cancel) {
                     focusView.requestFocus();
+                    showProgress(false);
                 }else{
                     //magic happen
                     final JsonObject user = new JsonObject();
@@ -96,9 +98,11 @@ public class LoginActivity extends BaseActivity {
                                             editor.putString(Constants.REFRESH_TOKEN, jsonObject.getString(Constants.REFRESH_TOKEN));
                                             editor.putBoolean(Constants.ISLOGIN, true);
                                             editor.apply();
+
                                             Toast.makeText(LoginActivity.this, "Hello " + username + "!", Toast.LENGTH_LONG).show();
                                             finish();
                                         }else{
+                                            showProgress(false);
                                             Toast.makeText(LoginActivity.this, jsonObject.getString("message"), Toast.LENGTH_LONG).show();
                                         }
                                     } catch (JSONException e1) {
@@ -117,6 +121,11 @@ public class LoginActivity extends BaseActivity {
                 startActivity(new Intent(LoginActivity.this, RegisterActivity.class));
             }
         });
+    }
+
+    private void showProgress(final boolean isShow){
+        findViewById(R.id.login_progress).setVisibility(isShow ? View.VISIBLE : View.GONE);
+        findViewById(R.id.loginForm).setVisibility(isShow ? View.GONE : View.VISIBLE);
     }
 
     @Override
