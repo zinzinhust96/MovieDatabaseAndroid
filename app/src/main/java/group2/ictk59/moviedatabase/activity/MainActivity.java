@@ -257,6 +257,9 @@ public class MainActivity extends AppCompatActivity
             RESTServiceApplication.getInstance().setLogin(false);
             app_preferences.edit().putBoolean(Constants.ISLOGIN, false).apply();
             startActivity(new Intent(MainActivity.this, LoginActivity.class));
+
+            //go home after log out
+            fm.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
             fm.beginTransaction().replace(R.id.content_frame, new HomeFragment()).commit();
             navigationView.getMenu().getItem(0).setChecked(true);
             navigationView.setCheckedItem(R.id.nav_home);
