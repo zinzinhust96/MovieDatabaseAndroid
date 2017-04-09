@@ -3,10 +3,27 @@
              android:layout_width="match_parent"
              android:layout_height="match_parent">
 
-    <TextView
+    <ProgressBar
+        android:id="@+id/progress_bar"
+        android:layout_marginTop="@dimen/space_to_status_bar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <view
+        android:id="@+id/rvMovieList"
+        class="android.support.v7.widget.RecyclerView"
+        android:layout_marginTop="@dimen/space_to_status_bar"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center"
-        android:text="Watchlist Fragment"/>
+        android:layout_height="wrap_content"/>
+
+    <TextView
+        android:layout_marginTop="@dimen/space_to_status_bar"
+        android:id="@+id/tvNoResults"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/app_bar"
+        android:visibility="gone"
+        android:textSize="20sp"
+        android:text="No movie was found in your watchlist. Navigate to movies section to add some"/>
 
 </FrameLayout>

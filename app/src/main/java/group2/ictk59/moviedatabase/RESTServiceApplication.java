@@ -5,8 +5,6 @@ import android.app.Application;
 import java.util.ArrayList;
 import java.util.List;
 
-import group2.ictk59.moviedatabase.model.User;
-
 /**
  * Created by ZinZin on 4/6/2017.
  */
@@ -16,7 +14,7 @@ public class RESTServiceApplication extends Application {
     //create a single class
     //that class's only instantiated once for the entire life of the application
 
-    private User user;
+    private String username;
     private String accessToken;
     private boolean isLogin;
     private List<Long> watchlistId;
@@ -25,7 +23,6 @@ public class RESTServiceApplication extends Application {
     public void onCreate() {
         super.onCreate();
         instance = this;
-        user = new User();
         watchlistId = new ArrayList<>();
         isLogin = false;
     }
@@ -37,12 +34,12 @@ public class RESTServiceApplication extends Application {
         return instance;
     }
 
-    public User getUser() {
-        return user;
+    public String getUsername() {
+        return username;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getAccessToken() {

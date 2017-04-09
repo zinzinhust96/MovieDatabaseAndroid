@@ -18,6 +18,16 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.koushikdutta.async.future.FutureCallback;
+import com.koushikdutta.ion.Ion;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import group2.ictk59.moviedatabase.Constants;
 import group2.ictk59.moviedatabase.R;
 import group2.ictk59.moviedatabase.RESTServiceApplication;
@@ -25,7 +35,7 @@ import group2.ictk59.moviedatabase.fragment.CelebsFragment;
 import group2.ictk59.moviedatabase.fragment.HomeFragment;
 import group2.ictk59.moviedatabase.fragment.MoviesFragment;
 import group2.ictk59.moviedatabase.fragment.WatchlistFragment;
-import group2.ictk59.moviedatabase.model.User;
+import group2.ictk59.moviedatabase.model.Movie;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -33,6 +43,7 @@ public class MainActivity extends AppCompatActivity
     public static final String LOG_TAG = "Main Activity";
 
     private String[] mMenuTitles;
+    private List<Movie> movieWatchlist;
 
     private ActionBarDrawerToggle toggle;
     private Toolbar toolbar;
@@ -49,6 +60,7 @@ public class MainActivity extends AppCompatActivity
         setSupportActionBar(toolbar);
 
         mMenuTitles = getResources().getStringArray(R.array.menu_array);
+        movieWatchlist = new ArrayList<>();
 
         drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         toggle = new ActionBarDrawerToggle(
@@ -84,28 +96,15 @@ public class MainActivity extends AppCompatActivity
         fm = getSupportFragmentManager();
         fm.beginTransaction().replace(R.id.content_frame, new HomeFragment()).commit();
 
-        //get stored username, new access_token and log in state
         app_preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        User currentUser = new User();
-        currentUser.setUsername(app_preferences.getString(Constants.USERNAME, ""));
-        RESTServiceApplication.getInstance().setUser(currentUser);
         boolean isLogin = app_preferences.getBoolean(Constants.ISLOGIN, false);
-        RESTServiceApplication.getInstance().setLogin(isLogin);
-        String refreshToken = app_preferences.getString(Constants.REFRESH_TOKEN, "");
-        Log.d(Constants.REFRESH_TOKEN, refreshToken);
 
-//        if (isLogin){
-//            Ion.with(getApplicationContext())
-//                    .load("http://localhost:5000/api/user/refresh_token")
-//                    .setHeader(Constants.TOKEN, refreshToken)
-//                    .asString()
-//                    .setCallback(new FutureCallback<String>() {
-//                        @Override
-//                        public void onCompleted(Exception e, String result) {
-//                            Log.d(Constants.REFRESH_TOKEN, result);
-//                        }
-//                    });
-//        }
+        if (isLogin){
+            //get stored username, new access_token and log in state
+            RESTServiceApplication.getInstance().setUsername(app_preferences.getString(Constants.USERNAME, ""));
+            RESTServiceApplication.getInstance().setLogin(true);
+        }
+
         navigationView = (NavigationView) findViewById(R.id.nav_view);
         //default item check
         navigationView.setCheckedItem(R.id.nav_home);
@@ -113,17 +112,58 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     protected void onResume() {
-        setUpNavigation();
-        super.onResume();
-    }
-
-    private void setUpNavigation(){
         View headerview = navigationView.getHeaderView(0);
         TextView profilename = (TextView) headerview.findViewById(R.id.nav_username);
         final boolean isLogin = RESTServiceApplication.getInstance().isLogin();
         if (isLogin){
             showLogin(false);
-            profilename.setText(RESTServiceApplication.getInstance().getUser().getUsername());
+            profilename.setText(RESTServiceApplication.getInstance().getUsername());
+
+            final String refreshToken = app_preferences.getString(Constants.REFRESH_TOKEN, "");
+            Log.d(Constants.REFRESH_TOKEN, refreshToken);
+            Ion.with(getApplicationContext())
+                    .load("GET", "http://localhost:5000/api/user/refresh_token?" + Constants.REFRESH_TOKEN + "=" + refreshToken)
+                    .asString()
+                    .setCallback(new FutureCallback<String>() {
+                        @Override
+                        public void onCompleted(Exception e, String result) {
+                            try {
+                                JSONObject jsonObject = new JSONObject(result);
+                                String status = jsonObject.getString(Constants.STATUS);
+                                if (status.equalsIgnoreCase(Constants.SUCCESS)){
+                                    String accessToken = jsonObject.getString(Constants.NEW_ACCESS_TOKEN);
+                                    RESTServiceApplication.getInstance().setAccessToken(accessToken);
+                                    Log.d(Constants.TOKEN, "http://localhost:5000/api/user?" + Constants.ACCESS_TOKEN + "=" + accessToken);
+                                    Ion.with(getApplicationContext())
+                                            .load("GET", "http://localhost:5000/api/user?" + Constants.ACCESS_TOKEN + "=" + accessToken)
+                                            .asString()
+                                            .setCallback(new FutureCallback<String>() {
+                                                @Override
+                                                public void onCompleted(Exception e, String result) {
+                                                    try {
+                                                        JSONArray jsonArray = new JSONObject(result).getJSONArray(Constants.DATA)
+                                                                .getJSONObject(0).getJSONObject(Constants.ATTRIBUTES)
+                                                                .getJSONObject(Constants.WATCHLIST).getJSONArray(Constants.DATA);
+                                                        List<Long> ids = new ArrayList<Long>();
+                                                        for (int i = 0; i < jsonArray.length(); i++){
+                                                            JSONObject jsonMovie = jsonArray.getJSONObject(i);
+                                                            Long id = jsonMovie.getLong(Constants.ID);
+                                                            Log.d(Constants.TOKEN, id.toString());
+                                                            ids.add(id);
+                                                        }
+                                                        RESTServiceApplication.getInstance().setWatchlistId(ids);
+                                                    } catch (JSONException e1) {
+                                                        e1.printStackTrace();
+                                                    }
+                                                }
+                                            });
+                                }
+                            } catch (JSONException e1) {
+                                e1.printStackTrace();
+                            }
+
+                        }
+                    });
         }else{
             showLogin(true);
             profilename.setText("Sign in to IMDb");
@@ -143,6 +183,7 @@ public class MainActivity extends AppCompatActivity
                 drawer.closeDrawer(GravityCompat.START);
             }
         });
+        super.onResume();
     }
 
     private void showLogin(boolean isLogOut){

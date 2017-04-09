@@ -23,7 +23,6 @@ import org.json.JSONObject;
 import group2.ictk59.moviedatabase.Constants;
 import group2.ictk59.moviedatabase.R;
 import group2.ictk59.moviedatabase.RESTServiceApplication;
-import group2.ictk59.moviedatabase.model.User;
 
 public class RegisterActivity extends BaseActivity {
 
@@ -95,15 +94,9 @@ public class RegisterActivity extends BaseActivity {
                                 public void onCompleted(Exception e, String result) {
                                     try {
                                         JSONObject jsonObject = new JSONObject(result);
-                                        String status = jsonObject.getString("status");
+                                        String status = jsonObject.getString(Constants.STATUS);
                                         if (status.equalsIgnoreCase("success")){
-//                                            BaseActivity.isLogIn = true;
-                                            User currentUser = new User();
-                                            currentUser.setUsername(username);
-                                            currentUser.setPassword(password);
-                                            currentUser.setEmail(email);
-
-                                            RESTServiceApplication.getInstance().setUser(currentUser);
+                                            RESTServiceApplication.getInstance().setUsername(username);
                                             RESTServiceApplication.getInstance().setAccessToken(jsonObject.getString("access_token"));
                                             RESTServiceApplication.getInstance().setLogin(true);
 //                                            Log.i("LOG", jsonObject.getString("access_token"));
