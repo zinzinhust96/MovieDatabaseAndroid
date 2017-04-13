@@ -35,7 +35,6 @@ import group2.ictk59.moviedatabase.fragment.CelebsFragment;
 import group2.ictk59.moviedatabase.fragment.HomeFragment;
 import group2.ictk59.moviedatabase.fragment.MoviesFragment;
 import group2.ictk59.moviedatabase.fragment.WatchlistFragment;
-import group2.ictk59.moviedatabase.model.Movie;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -43,14 +42,12 @@ public class MainActivity extends AppCompatActivity
     public static final String LOG_TAG = "Main Activity";
 
     private String[] mMenuTitles;
-    private List<Movie> movieWatchlist;
 
     private ActionBarDrawerToggle toggle;
     private Toolbar toolbar;
     private DrawerLayout drawer;
     private NavigationView navigationView;
     private SharedPreferences app_preferences;
-    private FragmentManager fm;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,7 +57,6 @@ public class MainActivity extends AppCompatActivity
         setSupportActionBar(toolbar);
 
         mMenuTitles = getResources().getStringArray(R.array.menu_array);
-        movieWatchlist = new ArrayList<>();
 
         drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         toggle = new ActionBarDrawerToggle(
@@ -93,7 +89,7 @@ public class MainActivity extends AppCompatActivity
         });
 
         //first fragment shown
-        fm = getSupportFragmentManager();
+        FragmentManager fm = getSupportFragmentManager();
         fm.beginTransaction().replace(R.id.content_frame, new HomeFragment()).commit();
 
         app_preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
@@ -144,7 +140,7 @@ public class MainActivity extends AppCompatActivity
                                                         JSONArray jsonArray = new JSONObject(result).getJSONArray(Constants.DATA)
                                                                 .getJSONObject(0).getJSONObject(Constants.ATTRIBUTES)
                                                                 .getJSONObject(Constants.WATCHLIST).getJSONArray(Constants.DATA);
-                                                        List<Long> ids = new ArrayList<Long>();
+                                                        List<Long> ids = new ArrayList<>();
                                                         for (int i = 0; i < jsonArray.length(); i++){
                                                             JSONObject jsonMovie = jsonArray.getJSONObject(i);
                                                             Long id = jsonMovie.getLong(Constants.ID);
@@ -232,23 +228,20 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_home) {
-            getSupportActionBar().setTitle(mMenuTitles[0]);
+            fm.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
             fm.beginTransaction().replace(R.id.content_frame, new HomeFragment()).commit();
         } else if (id == R.id.nav_movie) {
-            getSupportActionBar().setTitle(mMenuTitles[1]);
+            fm.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
             fm.beginTransaction().replace(R.id.content_frame, new MoviesFragment()).commit();
         } else if (id == R.id.nav_celeb) {
-            getSupportActionBar().setTitle(mMenuTitles[2]);
+            fm.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
             fm.beginTransaction().replace(R.id.content_frame, new CelebsFragment()).commit();
         } else if (id == R.id.nav_watchlist) {
-            getSupportActionBar().setTitle(mMenuTitles[3]);
             if (!RESTServiceApplication.getInstance().isLogin()){
                 startActivity(new Intent(MainActivity.this, LoginActivity.class));
             }else{
-                int size = navigationView.getMenu().size();
-                for (int i = 0; i < size; i++) {
-                    navigationView.getMenu().getItem(i).setChecked(false);
-                }
+                navigationView.setCheckedItem(R.id.nav_none);
+                fm.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
                 fm.beginTransaction().replace(R.id.content_frame, new WatchlistFragment()).commit();
             }
         } else if (id == R.id.nav_login) {
@@ -261,7 +254,6 @@ public class MainActivity extends AppCompatActivity
             //go home after log out
             fm.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
             fm.beginTransaction().replace(R.id.content_frame, new HomeFragment()).commit();
-            navigationView.getMenu().getItem(0).setChecked(true);
             navigationView.setCheckedItem(R.id.nav_home);
         }
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

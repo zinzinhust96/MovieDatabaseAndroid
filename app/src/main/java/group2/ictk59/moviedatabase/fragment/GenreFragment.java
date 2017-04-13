@@ -37,7 +37,7 @@ public class GenreFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 toMovieListFragment(genreArray[position]);
-                ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle("Best " + genreArray[position] + " Movies");
+
             }
         });
 

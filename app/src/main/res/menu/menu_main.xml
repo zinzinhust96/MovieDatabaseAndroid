@@ -2,12 +2,6 @@
       xmlns:app="http://schemas.android.com/apk/res-auto"
       xmlns:tools="http://schemas.android.com/tools"
       tools:context="group2.ictk59.moviedatabase.activity.SearchResultActivity">
-    <item
-        android:id="@+id/menu_profile"
-        android:orderInCategory="100"
-        android:title="@string/menu_profile"
-        android:icon="@drawable/profile"
-        app:showAsAction="collapseActionView|ifRoom"/>
 
     <item android:id="@+id/menu_search"
           android:title="@string/search_title"

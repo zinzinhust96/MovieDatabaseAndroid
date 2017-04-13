@@ -81,7 +81,7 @@ public class LoginActivity extends BaseActivity {
                                     try {
                                         JSONObject jsonObject = new JSONObject(result);
                                         String status = jsonObject.getString(Constants.STATUS);
-                                        if (status.equalsIgnoreCase("success")){
+                                        if (status.equalsIgnoreCase(Constants.SUCCESS)){
                                             RESTServiceApplication.getInstance().setUsername(username);
                                             RESTServiceApplication.getInstance().setAccessToken(jsonObject.getString(Constants.ACCESS_TOKEN));
                                             RESTServiceApplication.getInstance().setLogin(true);

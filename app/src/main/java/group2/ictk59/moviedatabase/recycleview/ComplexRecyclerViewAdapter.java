@@ -134,4 +134,8 @@ public class ComplexRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVie
         items = newData;
         notifyDataSetChanged();
     }
+
+    public Object getListItem(int position){
+        return (null != items? items.get(position) : null);
+    }
 }

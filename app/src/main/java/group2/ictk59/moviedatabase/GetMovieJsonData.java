@@ -30,6 +30,12 @@ public class GetMovieJsonData extends GetRawData {
         return mDestinationUri;
     }
 
+    public GetMovieJsonData(Long id) {
+        super(null);
+        mMovies = new ArrayList<>();
+        createAndUpdateUri(id);
+    }
+
     public GetMovieJsonData(String name) {
         super(null);
         mMovies = new ArrayList<>();
@@ -46,6 +52,12 @@ public class GetMovieJsonData extends GetRawData {
         DownloadJsonData downloadJsonData = new DownloadJsonData();
         Log.i(LOG_TAG, mDestinationUri.toString());
         downloadJsonData.execute(mDestinationUri.toString());
+    }
+
+    public boolean createAndUpdateUri(Long id){
+        final String URL_FEED = "http://localhost:5000/api/movies/" + id.toString();
+        mDestinationUri = Uri.parse(URL_FEED);
+        return mDestinationUri != null;
     }
 
     public boolean createAndUpdateUri(String name){
@@ -92,10 +104,13 @@ public class GetMovieJsonData extends GetRawData {
         final String MOVIE_COUNTRY = "country";
         final String MOVIE_GENRE = "genre";
         final String MOVIE_DIRECTOR = "director";
+        final String MOVIE_AWARDS = "awards";
         final String MOVIE_CASTS = "casts";
         final String MOVIE_PLOT = "plot";
         final String MOVIE_POSTER = "poster";
         final String MOVIE_RATING = "rating";
+        final String MOVIE_VOTES = "votes";
+        final String MOVIE_WRITER = "writer";
         final String MOVIE_ACTORS = "actors";
 
         try {
@@ -116,12 +131,15 @@ public class GetMovieJsonData extends GetRawData {
                 String country = jsonAttribute.getString(MOVIE_COUNTRY);
                 String genre = jsonAttribute.getString(MOVIE_GENRE);
                 String director = jsonAttribute.getString(MOVIE_DIRECTOR);
+                String awards = jsonAttribute.getString(MOVIE_AWARDS);
                 String casts = jsonAttribute.getString(MOVIE_CASTS);
                 String plot = jsonAttribute.getString(MOVIE_PLOT);
                 String poster = jsonAttribute.getString(MOVIE_POSTER);
                 String rating = jsonAttribute.getString(MOVIE_RATING);
+                String votes = jsonAttribute.getString(MOVIE_VOTES);
+                String writer = jsonAttribute.getString(MOVIE_WRITER);
 
-                Movie movieObject = new Movie(id, title, year, released, runtime, country, genre, director, casts, plot, poster, rating);
+                Movie movieObject = new Movie(id, title, year, released, runtime, country, genre, director, awards, casts, plot, poster, rating, votes, writer, null);
                 mMovies.add(movieObject);
             }
 

@@ -13,7 +13,6 @@
             android:id="@+id/ivPoster"
             android:layout_width="96dp"
             android:layout_height="128dp"
-            android:layout_alignParentTop="true"
             android:layout_gravity="center_horizontal"
             android:padding="5dp"
             android:scaleType="fitCenter"

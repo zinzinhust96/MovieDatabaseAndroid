@@ -1,5 +1,7 @@
 package group2.ictk59.moviedatabase.model;
 
+import java.util.List;
+
 /**
  * Created by ZinZin on 3/24/2017.
  */
@@ -14,12 +16,16 @@ public class Movie {
     private String country;
     private String genre;
     private String director;
+    private String awards;
     private String casts;
     private String plot;
     private String poster;
     private String rating;
+    private String votes;
+    private String writer;
+    private List<Actor> topCasts;
 
-    public Movie(Long id, String title, String year, String released, String runtime, String country, String genre, String director, String casts, String plot, String poster, String rating) {
+    public Movie(Long id, String title, String year, String released, String runtime, String country, String genre, String director, String awards, String casts, String plot, String poster, String rating, String votes, String writer, List<Actor> topCasts) {
         this.id = id;
         this.title = title;
         this.year = year;
@@ -28,10 +34,14 @@ public class Movie {
         this.country = country;
         this.genre = genre;
         this.director = director;
+        this.awards = awards;
         this.casts = casts;
         this.plot = plot;
         this.poster = poster;
         this.rating = rating;
+        this.votes = votes;
+        this.writer = writer;
+        this.topCasts = topCasts;
     }
 
     public Long getId() {
@@ -66,6 +76,10 @@ public class Movie {
         return director;
     }
 
+    public String getAwards() {
+        return awards;
+    }
+
     public String getCasts() {
         return casts;
     }
@@ -82,6 +96,18 @@ public class Movie {
         return rating;
     }
 
+    public String getVotes() {
+        return votes;
+    }
+
+    public String getWriter() {
+        return writer;
+    }
+
+    public List<Actor> getTopCasts() {
+        return topCasts;
+    }
+
     @Override
     public String toString() {
         return "Movie{" +
@@ -93,10 +119,14 @@ public class Movie {
                 ", country='" + country + '\'' +
                 ", genre='" + genre + '\'' +
                 ", director='" + director + '\'' +
+                ", awards='" + awards + '\'' +
                 ", casts='" + casts + '\'' +
                 ", plot='" + plot + '\'' +
                 ", poster='" + poster + '\'' +
                 ", rating='" + rating + '\'' +
+                ", votes='" + votes + '\'' +
+                ", writer='" + writer + '\'' +
+                ", topCasts=" + topCasts +
                 '}';
     }
 }

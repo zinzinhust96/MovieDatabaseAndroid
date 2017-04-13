@@ -134,4 +134,8 @@ public class ListRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.V
         items = newData;
         notifyDataSetChanged();
     }
+
+    public Object getListItem(int position){
+        return (null != items? items.get(position) : null);
+    }
 }

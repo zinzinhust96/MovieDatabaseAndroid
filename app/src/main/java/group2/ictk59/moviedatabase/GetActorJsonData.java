@@ -122,7 +122,7 @@ public class GetActorJsonData extends GetRawData {
                     String year = jsonMovieAttribute.getString("year");
 
                     Long movieId = jsonMovie.getLong("id");
-                    Movie movie = new Movie(movieId, title, year, null, null, null, null, null, null, null, poster, null);
+                    Movie movie = new Movie(movieId, title, year, null, null, null, null, null, null, null, null, poster, null, null, null, null);
                     knownFor.add(movie);
                 }
 

@@ -3,18 +3,24 @@ package group2.ictk59.moviedatabase.fragment;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
+import group2.ictk59.moviedatabase.Constants;
 import group2.ictk59.moviedatabase.GetMovieJsonData;
 import group2.ictk59.moviedatabase.R;
+import group2.ictk59.moviedatabase.model.Movie;
 import group2.ictk59.moviedatabase.recycleview.ListRecyclerViewAdapter;
+import group2.ictk59.moviedatabase.recycleview.RecyclerItemClickListener;
 
 
 /**
@@ -38,6 +44,26 @@ public class MovieListFragment extends Fragment {
 
         mAdapter = new ListRecyclerViewAdapter(getActivity().getApplicationContext(), new ArrayList<>());
         rvMovieList.setAdapter(mAdapter);
+        rvMovieList.addOnItemTouchListener(new RecyclerItemClickListener(getActivity().getApplicationContext(), rvMovieList, new RecyclerItemClickListener.OnItemClickListener() {
+            @Override
+            public void onItemClick(View view, int position) {
+                Long id = ((Movie)mAdapter.getListItem(position)).getId();
+                Toast.makeText(getActivity().getApplicationContext(), id.toString(), Toast.LENGTH_SHORT).show();
+                FragmentTransaction ft = getFragmentManager().beginTransaction();
+                Bundle bundle = new Bundle();
+                bundle.putLong(Constants.ID, id);
+                MovieProfileFragment movieProfileFragment = new MovieProfileFragment();
+                movieProfileFragment.setArguments(bundle);
+                ft.replace(R.id.content_frame, movieProfileFragment);
+                ft.addToBackStack(null);
+                ft.commit();
+            }
+
+            @Override
+            public void onItemLongClick(View view, int position) {
+
+            }
+        }));
 
         return rootView;
     }
@@ -53,6 +79,22 @@ public class MovieListFragment extends Fragment {
         }
         ProcessMovieList processMovieList = new ProcessMovieList(genre, orderBy, desc, "50");
         processMovieList.execute();
+        if (!genre.equalsIgnoreCase("")){
+            ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle("Best " + genre + " Movies");
+        }
+        else if (orderBy.equalsIgnoreCase("rating")){
+            if (desc){
+                ((AppCompatActivity)getActivity()).getSupportActionBar().setTitle("Top Rated Movies");
+            }else{
+                ((AppCompatActivity)getActivity()).getSupportActionBar().setTitle("Lowest Rated Movies");
+            }
+        }else if (orderBy.equalsIgnoreCase("year")){
+            if (desc){
+                ((AppCompatActivity)getActivity()).getSupportActionBar().setTitle("Latest Featured Movies");
+            }
+        }
+
+
     }
 
     public class ProcessMovieList extends GetMovieJsonData {

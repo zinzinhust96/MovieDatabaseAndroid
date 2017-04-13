@@ -130,4 +130,8 @@ public class AdapterHorizontal extends RecyclerView.Adapter<RecyclerView.ViewHol
         items = newData;
         notifyDataSetChanged();
     }
+
+    public Object getListItem(int position){
+        return (null != items? items.get(position) : null);
+    }
 }

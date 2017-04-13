@@ -73,8 +73,8 @@ public class GetUserJsonData extends GetRawData {
                 String casts = "";
                 String rating = "";
 
-                Movie movie = new Movie(id, title, year, null, null, null, null, null,
-                        casts, null, poster, rating);
+                Movie movie = new Movie(id, title, year, null, null, null, null,
+                        null, null, casts, null, poster, rating, null, null, null);
                 mMovies.add(movie);
             }
         } catch (JSONException e) {

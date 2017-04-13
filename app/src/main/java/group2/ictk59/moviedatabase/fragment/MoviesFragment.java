@@ -13,13 +13,17 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import group2.ictk59.moviedatabase.Constants;
 import group2.ictk59.moviedatabase.GetMovieJsonData;
 import group2.ictk59.moviedatabase.R;
+import group2.ictk59.moviedatabase.model.Movie;
 import group2.ictk59.moviedatabase.recycleview.AdapterHorizontal;
+import group2.ictk59.moviedatabase.recycleview.RecyclerItemClickListener;
 
 /**
  * Created by ZinZin on 3/27/2017.
@@ -55,6 +59,25 @@ public class MoviesFragment extends Fragment {
         rvMovieHorizontal.setLayoutManager(layoutManager);
         mAdapter = new AdapterHorizontal(getActivity().getApplicationContext(), new ArrayList<>());
         rvMovieHorizontal.setAdapter(mAdapter);
+        rvMovieHorizontal.addOnItemTouchListener(new RecyclerItemClickListener(getActivity().getApplicationContext(), rvMovieHorizontal, new RecyclerItemClickListener.OnItemClickListener() {
+            @Override
+            public void onItemClick(View view, int position) {
+                Long id = ((Movie)mAdapter.getListItem(position)).getId();
+                FragmentTransaction ft = getFragmentManager().beginTransaction();
+                Bundle bundle = new Bundle();
+                bundle.putLong(Constants.ID, id);
+                MovieProfileFragment movieProfileFragment = new MovieProfileFragment();
+                movieProfileFragment.setArguments(bundle);
+                ft.replace(R.id.content_frame, movieProfileFragment);
+                ft.addToBackStack(null);
+                ft.commit();
+            }
+
+            @Override
+            public void onItemLongClick(View view, int position) {
+
+            }
+        }));
 
         lvMoviesItems = (ListView)rootView.findViewById(R.id.lvMoviesItems);
         final List<String> moviesItems = new ArrayList<>();
@@ -87,7 +110,7 @@ public class MoviesFragment extends Fragment {
                         ft.commit();
                         break;
                 }
-                ((AppCompatActivity)getActivity()).getSupportActionBar().setTitle(moviesItems.get(position));
+
             }
         });
 

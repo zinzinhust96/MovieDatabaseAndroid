@@ -3,6 +3,8 @@ package group2.ictk59.moviedatabase.fragment;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -10,14 +12,18 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import group2.ictk59.moviedatabase.Constants;
 import group2.ictk59.moviedatabase.GetUserJsonData;
 import group2.ictk59.moviedatabase.R;
 import group2.ictk59.moviedatabase.RESTServiceApplication;
+import group2.ictk59.moviedatabase.model.Movie;
 import group2.ictk59.moviedatabase.recycleview.ComplexRecyclerViewAdapter;
+import group2.ictk59.moviedatabase.recycleview.RecyclerItemClickListener;
 
 /**
  * Created by ZinZin on 4/7/2017.
@@ -42,6 +48,25 @@ public class WatchlistFragment extends Fragment {
 
         mAdapter = new ComplexRecyclerViewAdapter(getActivity().getApplicationContext(), new ArrayList<>());
         rvMovieList.setAdapter(mAdapter);
+        rvMovieList.addOnItemTouchListener(new RecyclerItemClickListener(getActivity().getApplicationContext(), rvMovieList, new RecyclerItemClickListener.OnItemClickListener() {
+            @Override
+            public void onItemClick(View view, int position) {
+                Long id = ((Movie)mAdapter.getListItem(position)).getId();
+                FragmentTransaction ft = getFragmentManager().beginTransaction();
+                Bundle bundle = new Bundle();
+                bundle.putLong(Constants.ID, id);
+                MovieProfileFragment movieProfileFragment = new MovieProfileFragment();
+                movieProfileFragment.setArguments(bundle);
+                ft.replace(R.id.content_frame, movieProfileFragment);
+                ft.addToBackStack(null);
+                ft.commit();
+            }
+
+            @Override
+            public void onItemLongClick(View view, int position) {
+
+            }
+        }));
 
         return rootView;
     }
@@ -52,6 +77,7 @@ public class WatchlistFragment extends Fragment {
         String accessToken = RESTServiceApplication.getInstance().getAccessToken();
         ProcessMovieList processMovieList = new ProcessMovieList(accessToken);
         processMovieList.execute();
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle("Your Watchlist");
     }
 
     public class ProcessMovieList extends GetUserJsonData {
