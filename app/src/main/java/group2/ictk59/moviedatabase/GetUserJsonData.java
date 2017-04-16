@@ -70,8 +70,8 @@ public class GetUserJsonData extends GetRawData {
                 String poster = jsonMovieAtt.getString(Constants.POSTER);
                 String title = jsonMovieAtt.getString(Constants.TITLE);
                 String year = jsonMovieAtt.getString(Constants.YEAR);
-                String casts = "";
-                String rating = "";
+                String casts = jsonMovieAtt.getString(Constants.CASTS);
+                String rating = jsonMovieAtt.getString(Constants.RATING);
 
                 Movie movie = new Movie(id, title, year, null, null, null, null,
                         null, null, casts, null, poster, rating, null, null, null);

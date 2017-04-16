@@ -31,6 +31,12 @@ public class GetActorJsonData extends GetRawData {
         return mDestinationUri;
     }
 
+    public GetActorJsonData(Long id) {
+        super(null);
+        mActors = new ArrayList<>();
+        createAndUpdateUri(id);
+    }
+
     public GetActorJsonData(String name) {
         super(null);
         mActors = new ArrayList<>();
@@ -47,6 +53,12 @@ public class GetActorJsonData extends GetRawData {
         DownloadJsonData downloadJsonData = new DownloadJsonData();
         Log.i(LOG_TAG, mDestinationUri.toString());
         downloadJsonData.execute(mDestinationUri.toString());
+    }
+
+    public boolean createAndUpdateUri(Long id){
+        final String URL_FEED = "http://localhost:5000/api/actors/" + id.toString();
+        mDestinationUri = Uri.parse(URL_FEED);
+        return mDestinationUri != null;
     }
 
     public boolean createAndUpdateUri(String name){
@@ -116,12 +128,12 @@ public class GetActorJsonData extends GetRawData {
                 List<Movie> knownFor = new ArrayList<>();
                 for (int j = 0; j < jsonKnownFor.length(); j++){
                     JSONObject jsonMovie = jsonKnownFor.getJSONObject(j);
+                    Long movieId = jsonMovie.getLong("id");
                     JSONObject jsonMovieAttribute = jsonMovie.getJSONObject(ACTOR_ATTRIBUTES);
                     String poster = jsonMovieAttribute.getString("poster");
                     String title = jsonMovieAttribute.getString("title");
                     String year = jsonMovieAttribute.getString("year");
 
-                    Long movieId = jsonMovie.getLong("id");
                     Movie movie = new Movie(movieId, title, year, null, null, null, null, null, null, null, null, poster, null, null, null, null);
                     knownFor.add(movie);
                 }

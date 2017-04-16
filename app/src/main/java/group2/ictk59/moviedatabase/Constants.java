@@ -5,6 +5,8 @@ package group2.ictk59.moviedatabase;
  */
 
 public class Constants {
+    public static final String IMDB_QUERY = "IMDb_QUERY";
+
     public static final String ISLOGIN = "isLogIn";
     public static final String STATUS = "status";
     public static final String SUCCESS = "success";

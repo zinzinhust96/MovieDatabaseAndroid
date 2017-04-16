@@ -4,4 +4,178 @@
               android:layout_width="match_parent"
               android:layout_height="match_parent">
 
+    <TextView
+        android:layout_marginTop="?actionBarSize"
+        android:id="@+id/tvFullName"
+        android:layout_width="match_parent"
+        android:layout_height="?actionBarSize"
+        android:maxLines="2"
+        android:textSize="20sp"
+        android:paddingStart="10dp"
+        android:textStyle="bold"
+        android:gravity="center_vertical"
+        android:background="@color/actorColor"
+        android:textColor="@color/bodyTextColor"/>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <com.ms.square.android.expandabletextview.ExpandableTextView
+                xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:expandableTextView="http://schemas.android.com/apk/res-auto"
+                android:id="@+id/expand_text_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                expandableTextView:maxCollapsedLines="4"
+                expandableTextView:animDuration="200">
+                <TextView
+                    android:id="@id/expandable_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+                    android:text="@string/string_test"
+                    android:textSize="16sp"
+                    android:textColor="@color/bodyTextColor" />
+                <ImageButton
+                    android:id="@id/expand_collapse"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="16dp"
+                    android:layout_gravity="center|bottom"
+                    android:background="@android:color/transparent"/>
+            </com.ms.square.android.expandabletextview.ExpandableTextView>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_margin="5dp">
+
+                <ImageView
+                    android:layout_width="144dp"
+                    android:layout_height="192dp"
+                    android:src="@drawable/placeholder"
+                    android:id="@+id/ivProfilePicture"
+                    android:layout_gravity="center_horizontal"
+                    android:scaleType="fitCenter"
+                    />
+
+                <LinearLayout
+                    android:layout_margin="5dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical">
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_margin="5dp">
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@drawable/popularity"/>
+
+                        <TextView
+                            android:id="@+id/tvPopularity"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="10dp"
+                            android:textSize="15sp"/>
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_marginTop="10dp"
+                        android:layout_marginLeft="5dp"
+                        android:layout_marginRight="5dp"
+                        android:layout_marginBottom="5dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Born:"
+                            android:textStyle="bold"
+                            android:textSize="15sp"/>
+
+                        <TextView
+                            android:id="@+id/tvBirthday"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textSize="15sp"/>
+
+                        <TextView
+                            android:id="@+id/tvPlaceOfBirth"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textSize="15sp"/>
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:id="@+id/llDeathDay"
+                        android:visibility="gone"
+                        android:layout_marginTop="10dp"
+                        android:layout_marginLeft="5dp"
+                        android:layout_marginRight="5dp"
+                        android:layout_marginBottom="5dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Death:"
+                            android:textStyle="bold"
+                            android:textSize="15sp"/>
+
+                        <TextView
+                            android:id="@+id/tvDeathday"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textSize="15sp"/>
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <View
+                android:layout_marginTop="5dp"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/movieItemSeparator"/>
+
+            <TextView
+                android:layout_marginTop="10dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginBottom="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Known For"
+                android:textSize="20sp"/>
+
+            <view
+                android:id="@+id/rvMovieList"
+                android:layout_marginBottom="10dp"
+                class="android.support.v7.widget.RecyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+        </LinearLayout>
+    </ScrollView>
 </LinearLayout>

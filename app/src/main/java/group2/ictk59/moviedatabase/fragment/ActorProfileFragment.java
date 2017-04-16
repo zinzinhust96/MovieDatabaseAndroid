@@ -12,84 +12,148 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ProgressBar;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.JsonObject;
 import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Ion;
+import com.ms.square.android.expandabletextview.ExpandableTextView;
+import com.squareup.picasso.Picasso;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import group2.ictk59.moviedatabase.Constants;
-import group2.ictk59.moviedatabase.GetMovieJsonData;
+import group2.ictk59.moviedatabase.GetActorJsonData;
 import group2.ictk59.moviedatabase.R;
 import group2.ictk59.moviedatabase.RESTServiceApplication;
 import group2.ictk59.moviedatabase.activity.LoginActivity;
+import group2.ictk59.moviedatabase.model.Actor;
 import group2.ictk59.moviedatabase.model.Movie;
-import group2.ictk59.moviedatabase.recycleview.ListRecyclerViewAdapter;
+import group2.ictk59.moviedatabase.recycleview.AdapterHorizontal;
 import group2.ictk59.moviedatabase.recycleview.RecyclerViewClickListener;
 
-
 /**
- * Created by ZinZin on 3/31/2017.
+ * Created by ZinZin on 4/13/2017.
  */
 
-public class MovieListFragment extends Fragment implements RecyclerViewClickListener {
+public class ActorProfileFragment extends Fragment implements RecyclerViewClickListener{
 
-    private RecyclerView rvMovieList;
-    private ListRecyclerViewAdapter mAdapter;
-    private ProgressBar mProgressBar;
+    AdapterHorizontal mAdapter;
+
+    ExpandableTextView etvBio;
+    TextView tvFullName, tvPopularity, tvBirthday, tvPlaceOfBirth, tvDeathday;
+    ImageView ivProfilePicture;
+    RecyclerView rvMovieList;
+    LinearLayout llDeathDay;
+
+    private List knownFor;
 
     @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_movie_list, container, false);
-
-        mProgressBar = (ProgressBar)rootView.findViewById(R.id.progress_bar);
-        rvMovieList = (RecyclerView)rootView.findViewById(R.id.rvMovieList);
-        rvMovieList.setLayoutManager(new LinearLayoutManager(getActivity().getApplicationContext()));
-
-        mAdapter = new ListRecyclerViewAdapter(getActivity(), new ArrayList<>(), this);
-        rvMovieList.setAdapter(mAdapter);
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
+        View rootView = inflater.inflate(R.layout.fragment_actorprofile, container, false);
+        setUpView(rootView);
 
         return rootView;
+    }
+
+    private void setUpView(View view){
+        etvBio = (ExpandableTextView)view.findViewById(R.id.expand_text_view);
+        tvFullName = (TextView)view.findViewById(R.id.tvFullName);
+        tvPopularity = (TextView)view.findViewById(R.id.tvPopularity);
+        tvBirthday = (TextView)view.findViewById(R.id.tvBirthday);
+        tvPlaceOfBirth = (TextView)view.findViewById(R.id.tvPlaceOfBirth);
+        tvDeathday = (TextView)view.findViewById(R.id.tvDeathday);
+        ivProfilePicture = (ImageView)view.findViewById(R.id.ivProfilePicture);
+        llDeathDay = (LinearLayout)view.findViewById(R.id.llDeathDay);
+
+        LinearLayoutManager layoutManager =
+                new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false);
+        rvMovieList = (RecyclerView)view.findViewById(R.id.rvMovieList);
+        rvMovieList.setLayoutManager(layoutManager);
+        mAdapter = new AdapterHorizontal(getActivity(), new ArrayList<>(), this);
+        rvMovieList.setAdapter(mAdapter);
+    }
+
+    private void updateView(Actor actor){
+        etvBio.setText(actor.getBiography());
+        tvFullName.setText(actor.getName());
+        tvPopularity.setText(String.valueOf(actor.getPopularity()));
+
+        DateFormat fromData = new SimpleDateFormat("yyyy-MM-dd");
+        DateFormat myFormat = new SimpleDateFormat("MMMM dd, yyyy", Locale.US);
+        try {
+            Date birthday = fromData.parse(actor.getBirthday());
+            if (actor.getDeathday().isEmpty()){
+                Date currentDate = new Date();
+                int age = getDiffYears(birthday, currentDate);
+                tvBirthday.setText(myFormat.format(birthday) + " (age " + age + ")");
+            }else{
+                Date deathday = fromData.parse(actor.getDeathday());
+                int age = getDiffYears(birthday, deathday);
+                tvDeathday.setVisibility(View.VISIBLE);
+                tvBirthday.setText(myFormat.format(birthday));
+                llDeathDay.setVisibility(View.VISIBLE);
+                tvDeathday.setText(myFormat.format(deathday) + " (age " + age + ")");
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        tvPlaceOfBirth.setText(actor.getPlaceOfBirth());
+        if (actor.getProfilePic() == null){
+            actor.setProfilePic("");
+        }
+        Picasso.with(getActivity())
+                .load("https://image.tmdb.org/t/p/w1000" + actor.getProfilePic())
+                .error(R.drawable.placeholder)
+                .placeholder(R.drawable.placeholder)
+                .into(ivProfilePicture);
+        knownFor = (List)actor.getKnownFor();
+        mAdapter.loadNewData(knownFor);
+    }
+
+    private int getDiffYears(Date first, Date last) {
+        Calendar a = getCalendar(first);
+        Calendar b = getCalendar(last);
+        int diff = b.get(Calendar.YEAR) - a.get(Calendar.YEAR);
+        if (a.get(Calendar.MONTH) > b.get(Calendar.MONTH) ||
+                (a.get(Calendar.MONTH) == b.get(Calendar.MONTH) && a.get(Calendar.DATE) > b.get(Calendar.DATE))) {
+            diff--;
+        }
+        return diff;
+    }
+
+    private Calendar getCalendar(Date date) {
+        Calendar cal = Calendar.getInstance(Locale.US);
+        cal.setTime(date);
+        return cal;
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        String orderBy = getArguments().getString("orderby");
-        Boolean desc = getArguments().getBoolean("desc");
-        String genre = getArguments().getString("genre");
-        if (genre == null){
-            genre = "";
-        }
-        ProcessMovieList processMovieList = new ProcessMovieList(genre, orderBy, desc, "50");
-        processMovieList.execute();
-        if (!genre.equalsIgnoreCase("")){
-            ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle("Best " + genre + " Movies");
-        }
-        else if (orderBy.equalsIgnoreCase("rating")){
-            if (desc){
-                ((AppCompatActivity)getActivity()).getSupportActionBar().setTitle("Top Rated Movies");
-            }else{
-                ((AppCompatActivity)getActivity()).getSupportActionBar().setTitle("Lowest Rated Movies");
-            }
-        }else if (orderBy.equalsIgnoreCase("year")){
-            if (desc){
-                ((AppCompatActivity)getActivity()).getSupportActionBar().setTitle("Latest Featured Movies");
-            }
-        }
+        Long id = getArguments().getLong(Constants.ID);
+        ProcessActor processActor = new ProcessActor(id);
+        processActor.execute();
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle("Actor Profile");
     }
 
     @Override
     public void onRowClicked(int position) {
-        Long id = ((Movie)mAdapter.getListItem(position)).getId();
+        Long id = ((Movie)knownFor.get(position)).getId();
         final FragmentTransaction ft = getFragmentManager().beginTransaction();
         Bundle bundle = new Bundle();
         bundle.putLong(Constants.ID, id);
@@ -108,7 +172,7 @@ public class MovieListFragment extends Fragment implements RecyclerViewClickList
 
     @Override
     public void onViewClicked(View v, int position) {
-        final Long id = ((Movie)mAdapter.getListItem(position)).getId();
+        final Long id = ((Movie)knownFor.get(position)).getId();
         JsonObject object = new JsonObject();
         object.addProperty("action", "modify_watchlist");
         object.addProperty("movie_id", id.toString());
@@ -165,9 +229,9 @@ public class MovieListFragment extends Fragment implements RecyclerViewClickList
         }
     }
 
-    public class ProcessMovieList extends GetMovieJsonData {
-        public ProcessMovieList(String genre, String orderBy, boolean desc, String limit) {
-            super(genre, orderBy, desc, limit);
+    public class ProcessActor extends GetActorJsonData {
+        public ProcessActor(Long id) {
+            super(id);
         }
 
         public void execute() {
@@ -175,7 +239,7 @@ public class MovieListFragment extends Fragment implements RecyclerViewClickList
             processData.execute();
         }
 
-        public class ProcessData extends GetMovieJsonData.DownloadJsonData {
+        public class ProcessData extends DownloadJsonData {
             @Override
             protected void onPreExecute() {
 //                mProgressBar.setVisibility(View.VISIBLE);
@@ -184,8 +248,9 @@ public class MovieListFragment extends Fragment implements RecyclerViewClickList
             @Override
             protected void onPostExecute(String webData) {
                 super.onPostExecute(webData);
-                mAdapter.loadNewData(getMovies());
-                mProgressBar.setVisibility(View.GONE);
+                List actors = getActors();
+                Actor actor = (Actor)actors.get(0);
+                updateView(actor);
             }
 
             @Override

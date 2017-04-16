@@ -20,6 +20,8 @@ import com.koushikdutta.ion.Ion;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+
 import group2.ictk59.moviedatabase.Constants;
 import group2.ictk59.moviedatabase.R;
 import group2.ictk59.moviedatabase.RESTServiceApplication;
@@ -96,8 +98,10 @@ public class RegisterActivity extends BaseActivity {
                                         JSONObject jsonObject = new JSONObject(result);
                                         String status = jsonObject.getString(Constants.STATUS);
                                         if (status.equalsIgnoreCase("success")){
+                                            String accessToken = jsonObject.getString("access_token");
                                             RESTServiceApplication.getInstance().setUsername(username);
-                                            RESTServiceApplication.getInstance().setAccessToken(jsonObject.getString("access_token"));
+                                            RESTServiceApplication.getInstance().setAccessToken(accessToken);
+                                            RESTServiceApplication.getInstance().setWatchlistId(new ArrayList<Long>());
                                             RESTServiceApplication.getInstance().setLogin(true);
 //                                            Log.i("LOG", jsonObject.getString("access_token"));
                                             SharedPreferences app_preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());

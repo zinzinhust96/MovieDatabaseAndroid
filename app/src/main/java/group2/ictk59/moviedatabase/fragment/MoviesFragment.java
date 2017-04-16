@@ -1,6 +1,8 @@
 package group2.ictk59.moviedatabase.fragment;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -13,7 +15,15 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
+
+import com.google.gson.JsonObject;
+import com.koushikdutta.async.future.FutureCallback;
+import com.koushikdutta.ion.Ion;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,24 +31,22 @@ import java.util.List;
 import group2.ictk59.moviedatabase.Constants;
 import group2.ictk59.moviedatabase.GetMovieJsonData;
 import group2.ictk59.moviedatabase.R;
+import group2.ictk59.moviedatabase.RESTServiceApplication;
+import group2.ictk59.moviedatabase.activity.LoginActivity;
 import group2.ictk59.moviedatabase.model.Movie;
 import group2.ictk59.moviedatabase.recycleview.AdapterHorizontal;
-import group2.ictk59.moviedatabase.recycleview.RecyclerItemClickListener;
+import group2.ictk59.moviedatabase.recycleview.RecyclerViewClickListener;
 
 /**
  * Created by ZinZin on 3/27/2017.
  */
 
-public class MoviesFragment extends Fragment {
+public class MoviesFragment extends Fragment implements RecyclerViewClickListener{
 
     private ListView lvMoviesItems;
     private RecyclerView rvMovieHorizontal;
     private AdapterHorizontal mAdapter;
-
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
+    private ProgressBar mProgressBar;
 
     @Nullable
     @Override
@@ -52,32 +60,14 @@ public class MoviesFragment extends Fragment {
 //                getActivity(), drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
 //        drawer.addDrawerListener(toggle);
 //        toggle.syncState();
+        mProgressBar = (ProgressBar)rootView.findViewById(R.id.progress_bar);
 
         LinearLayoutManager layoutManager =
                 new LinearLayoutManager(getActivity().getApplicationContext(), LinearLayoutManager.HORIZONTAL, false);
         rvMovieHorizontal = (RecyclerView)rootView.findViewById(R.id.rvMovieHorizontal);
         rvMovieHorizontal.setLayoutManager(layoutManager);
-        mAdapter = new AdapterHorizontal(getActivity().getApplicationContext(), new ArrayList<>());
+        mAdapter = new AdapterHorizontal(getActivity(), new ArrayList<>(), this);
         rvMovieHorizontal.setAdapter(mAdapter);
-        rvMovieHorizontal.addOnItemTouchListener(new RecyclerItemClickListener(getActivity().getApplicationContext(), rvMovieHorizontal, new RecyclerItemClickListener.OnItemClickListener() {
-            @Override
-            public void onItemClick(View view, int position) {
-                Long id = ((Movie)mAdapter.getListItem(position)).getId();
-                FragmentTransaction ft = getFragmentManager().beginTransaction();
-                Bundle bundle = new Bundle();
-                bundle.putLong(Constants.ID, id);
-                MovieProfileFragment movieProfileFragment = new MovieProfileFragment();
-                movieProfileFragment.setArguments(bundle);
-                ft.replace(R.id.content_frame, movieProfileFragment);
-                ft.addToBackStack(null);
-                ft.commit();
-            }
-
-            @Override
-            public void onItemLongClick(View view, int position) {
-
-            }
-        }));
 
         lvMoviesItems = (ListView)rootView.findViewById(R.id.lvMoviesItems);
         final List<String> moviesItems = new ArrayList<>();
@@ -117,6 +107,11 @@ public class MoviesFragment extends Fragment {
         return rootView;
     }
 
+    private void showProgressBar(boolean isShow){
+        mProgressBar.setVisibility(isShow ? View.VISIBLE : View.GONE);
+        rvMovieHorizontal.setVisibility(isShow ? View.INVISIBLE : View.VISIBLE);
+    }
+
     private void toMovieListFragment(String orderBy, boolean desc, FragmentTransaction ft){
         Bundle bundle = new Bundle();
         bundle.putString("orderby", orderBy);
@@ -136,6 +131,85 @@ public class MoviesFragment extends Fragment {
         ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle("Movie");
     }
 
+    @Override
+    public void onRowClicked(int position) {
+        Long id = ((Movie)mAdapter.getListItem(position)).getId();
+        final FragmentTransaction ft = getFragmentManager().beginTransaction();
+        Bundle bundle = new Bundle();
+        bundle.putLong(Constants.ID, id);
+        final MovieProfileFragment movieProfileFragment = new MovieProfileFragment();
+        movieProfileFragment.setArguments(bundle);
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                ft.replace(R.id.content_frame, movieProfileFragment);
+                ft.addToBackStack(null);
+                ft.commit();
+            }
+        }, 500);
+
+    }
+
+    @Override
+    public void onViewClicked(View v, int position) {
+        final Long id = ((Movie)mAdapter.getListItem(position)).getId();
+        JsonObject object = new JsonObject();
+        object.addProperty("action", "modify_watchlist");
+        object.addProperty("movie_id", id.toString());
+        if (v.getId() == R.id.ivAdd){
+            if (RESTServiceApplication.getInstance().isLogin()){
+                Ion.with(getActivity())
+                        .load("http://localhost:5000/api/user/action?" + Constants.ACCESS_TOKEN + "=" + RESTServiceApplication.getInstance().getAccessToken())
+                        .setJsonObjectBody(object)
+                        .asString()
+                        .setCallback(new FutureCallback<String>() {
+                            @Override
+                            public void onCompleted(Exception e, String result) {
+                                try {
+                                    JSONObject jsonObject = new JSONObject(result);
+                                    String status = jsonObject.getString(Constants.STATUS);
+                                    if (status.equalsIgnoreCase(Constants.SUCCESS)){
+                                        //add to list<long> watchlistId
+                                        List<Long> watchlistId = RESTServiceApplication.getInstance().getWatchlistId();
+                                        watchlistId.add(id);
+                                        RESTServiceApplication.getInstance().setWatchlistId(watchlistId);
+                                    }
+                                } catch (JSONException e1) {
+                                    e1.printStackTrace();
+                                }
+                            }
+                        });
+            }else {
+                Toast.makeText(getActivity(), R.string.login_alert, Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(getActivity(), LoginActivity.class));
+            }
+
+        }else if (v.getId() == R.id.ivRemove){
+            Ion.with(getActivity())
+                    .load("http://localhost:5000/api/user/action?" + Constants.ACCESS_TOKEN + "=" + RESTServiceApplication.getInstance().getAccessToken())
+                    .setJsonObjectBody(object)
+                    .asString()
+                    .setCallback(new FutureCallback<String>() {
+                        @Override
+                        public void onCompleted(Exception e, String result) {
+                            try {
+                                JSONObject jsonObject = new JSONObject(result);
+                                String status = jsonObject.getString(Constants.STATUS);
+                                if (status.equalsIgnoreCase(Constants.SUCCESS)){
+                                    //add to list<long> watchlistId
+                                    List<Long> watchlistId = RESTServiceApplication.getInstance().getWatchlistId();
+                                    watchlistId.remove(id);
+                                    RESTServiceApplication.getInstance().setWatchlistId(watchlistId);
+                                }
+                            } catch (JSONException e1) {
+                                e1.printStackTrace();
+                            }
+                        }
+                    });
+        }
+    }
+
     public class ProcessMovieList extends GetMovieJsonData {
         public ProcessMovieList(String genre, String orderBy, boolean desc, String limit) {
             super(genre, orderBy, desc, limit);
@@ -149,13 +223,14 @@ public class MoviesFragment extends Fragment {
         public class ProcessData extends GetMovieJsonData.DownloadJsonData {
             @Override
             protected void onPreExecute() {
-//                mProgressBar.setVisibility(View.VISIBLE);
+                showProgressBar(true);
             }
 
             @Override
             protected void onPostExecute(String webData) {
                 super.onPostExecute(webData);
                 mAdapter.loadNewData(getMovies());
+                showProgressBar(false);
             }
 
             @Override
@@ -164,4 +239,6 @@ public class MoviesFragment extends Fragment {
             }
         }
     }
+
+
 }

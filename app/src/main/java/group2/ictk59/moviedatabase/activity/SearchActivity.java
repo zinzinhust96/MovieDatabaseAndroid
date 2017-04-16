@@ -2,7 +2,6 @@ package group2.ictk59.moviedatabase.activity;
 
 import android.app.SearchManager;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -10,6 +9,7 @@ import android.support.v7.widget.SearchView;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import group2.ictk59.moviedatabase.Constants;
 import group2.ictk59.moviedatabase.R;
 
 public class SearchActivity extends BaseActivity {
@@ -36,10 +36,9 @@ public class SearchActivity extends BaseActivity {
             @Override
             public boolean onQueryTextSubmit(String query) {
                 SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-                sharedPref.edit().putString(IMDB_QUERY, query).apply();
+                sharedPref.edit().putString(Constants.IMDB_QUERY, query).apply();
                 mSearchView.clearFocus();
-                Intent intent = new Intent(SearchActivity.this, SearchResultActivity.class);
-                startActivity(intent);
+                finish();
                 return true;
             }
 

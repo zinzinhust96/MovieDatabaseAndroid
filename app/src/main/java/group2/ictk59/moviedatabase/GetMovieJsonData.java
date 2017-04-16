@@ -10,6 +10,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
+import group2.ictk59.moviedatabase.model.Actor;
 import group2.ictk59.moviedatabase.model.Movie;
 
 /**
@@ -139,7 +140,20 @@ public class GetMovieJsonData extends GetRawData {
                 String votes = jsonAttribute.getString(MOVIE_VOTES);
                 String writer = jsonAttribute.getString(MOVIE_WRITER);
 
-                Movie movieObject = new Movie(id, title, year, released, runtime, country, genre, director, awards, casts, plot, poster, rating, votes, writer, null);
+                JSONArray jsonCasts = jsonAttribute.getJSONObject(MOVIE_ACTORS).getJSONArray(MOVIE_DATA);
+                List<Actor> topCasts = new ArrayList<>();
+                for (int j = 0; j < jsonCasts.length(); j++){
+                    JSONObject jsonActor = jsonCasts.getJSONObject(j);
+                    Long actorId = jsonActor.getLong("id");
+                    JSONObject jsonActorAttribute = jsonActor.getJSONObject(MOVIE_ATTRIBUTES);
+                    String name = jsonActorAttribute.getString("name");
+                    String profilePic = jsonActorAttribute.getString("profile_pic");
+
+                    Actor actor = new Actor(actorId, null, null, null, name, null, null, profilePic, null);
+                    topCasts.add(actor);
+                }
+
+                Movie movieObject = new Movie(id, title, year, released, runtime, country, genre, director, awards, casts, plot, poster, rating, votes, writer, topCasts);
                 mMovies.add(movieObject);
             }
 

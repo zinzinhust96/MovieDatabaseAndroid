@@ -1,6 +1,7 @@
 package group2.ictk59.moviedatabase.fragment;
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -13,34 +14,40 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import group2.ictk59.moviedatabase.Constants;
 import group2.ictk59.moviedatabase.GetActorJsonData;
 import group2.ictk59.moviedatabase.R;
+import group2.ictk59.moviedatabase.model.Actor;
 import group2.ictk59.moviedatabase.recycleview.AdapterHorizontal;
+import group2.ictk59.moviedatabase.recycleview.RecyclerViewClickListener;
 
 /**
  * Created by ZinZin on 3/27/2017.
  */
 
-public class CelebsFragment extends Fragment {
+public class CelebsFragment extends Fragment implements RecyclerViewClickListener {
 
     private ListView lvActorsItems;
     private RecyclerView rvActorHorizontal;
     private AdapterHorizontal mAdapter;
+    private ProgressBar mProgressBar;
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_celebs, container, false);
+        mProgressBar = (ProgressBar)rootView.findViewById(R.id.progress_bar);
 
         LinearLayoutManager layoutManager =
                 new LinearLayoutManager(getActivity().getApplicationContext(), LinearLayoutManager.HORIZONTAL, false);
         rvActorHorizontal = (RecyclerView)rootView.findViewById(R.id.rvActorHorizontal);
         rvActorHorizontal.setLayoutManager(layoutManager);
-        mAdapter = new AdapterHorizontal(getActivity().getApplicationContext(), new ArrayList<>());
+        mAdapter = new AdapterHorizontal(getActivity(), new ArrayList<>(), this);
         rvActorHorizontal.setAdapter(mAdapter);
 
         lvActorsItems = (ListView)rootView.findViewById(R.id.lvActorsItem);
@@ -88,6 +95,30 @@ public class CelebsFragment extends Fragment {
         ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle("Celebs");
     }
 
+    @Override
+    public void onRowClicked(int position) {
+        Long id = ((Actor)mAdapter.getListItem(position)).getId();
+        final FragmentTransaction ft = getFragmentManager().beginTransaction();
+        Bundle bundle = new Bundle();
+        bundle.putLong(Constants.ID, id);
+        final ActorProfileFragment actorProfileFragment = new ActorProfileFragment();
+        actorProfileFragment.setArguments(bundle);
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                ft.replace(R.id.content_frame, actorProfileFragment);
+                ft.addToBackStack(null);
+                ft.commit();
+            }
+        }, 500);
+    }
+
+    @Override
+    public void onViewClicked(View v, int position) {
+
+    }
+
     public class ProcessActorList extends GetActorJsonData {
         public ProcessActorList(String orderBy, boolean desc, String limit) {
             super(orderBy, desc, limit);
@@ -101,13 +132,14 @@ public class CelebsFragment extends Fragment {
         public class ProcessData extends GetActorJsonData.DownloadJsonData {
             @Override
             protected void onPreExecute() {
-//                mProgressBar.setVisibility(View.VISIBLE);
+                mProgressBar.setVisibility(View.VISIBLE);
             }
 
             @Override
             protected void onPostExecute(String webData) {
                 super.onPostExecute(webData);
                 mAdapter.loadNewData(getActors());
+                mProgressBar.setVisibility(View.GONE);
             }
 
             @Override

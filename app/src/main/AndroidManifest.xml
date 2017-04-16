@@ -11,12 +11,6 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.IMDb">
         <activity
-            android:name=".activity.SearchResultActivity"
-            android:label="Search Result"
-            android:noHistory="true"
-            android:theme="@style/Theme.IMDb">
-        </activity>
-        <activity
             android:name=".activity.SearchActivity"
             android:label="@string/title_activity_search"
             android:noHistory="true"

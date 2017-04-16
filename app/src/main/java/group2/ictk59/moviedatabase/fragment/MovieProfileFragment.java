@@ -2,10 +2,14 @@ package group2.ictk59.moviedatabase.fragment;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,6 +27,7 @@ import com.squareup.picasso.Picasso;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import group2.ictk59.moviedatabase.Constants;
@@ -30,13 +35,18 @@ import group2.ictk59.moviedatabase.GetMovieJsonData;
 import group2.ictk59.moviedatabase.R;
 import group2.ictk59.moviedatabase.RESTServiceApplication;
 import group2.ictk59.moviedatabase.activity.LoginActivity;
+import group2.ictk59.moviedatabase.model.Actor;
 import group2.ictk59.moviedatabase.model.Movie;
+import group2.ictk59.moviedatabase.recycleview.AdapterHorizontal;
+import group2.ictk59.moviedatabase.recycleview.RecyclerViewClickListener;
 
 /**
  * Created by ZinZin on 4/10/2017.
  */
 
-public class MovieProfileFragment extends Fragment {
+public class MovieProfileFragment extends Fragment implements RecyclerViewClickListener {
+
+    AdapterHorizontal mAdapter;
 
     ExpandableTextView etvPlot;
     TextView tvTitleYear, tvGenre, tvRuntime, tvRating, tvVotes, tvAwards, tvCountry, tvReleased, tvDirector, tvWriter;
@@ -44,6 +54,7 @@ public class MovieProfileFragment extends Fragment {
     Button btAdd, btRemove;
     RecyclerView rvActorList;
 
+    private List topCasts;
 
     @Nullable
     @Override
@@ -70,6 +81,11 @@ public class MovieProfileFragment extends Fragment {
         btAdd = (Button)view.findViewById(R.id.btAdd);
         btRemove = (Button)view.findViewById(R.id.btRemove);
         rvActorList = (RecyclerView)view.findViewById(R.id.rvActorList);
+        LinearLayoutManager layoutManager =
+                new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false);
+        rvActorList.setLayoutManager(layoutManager);
+        mAdapter = new AdapterHorizontal(getActivity(), new ArrayList<>(), this);
+        rvActorList.setAdapter(mAdapter);
 
         btAdd.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -105,6 +121,7 @@ public class MovieProfileFragment extends Fragment {
                                 }
                             });
                 }else{
+                    Toast.makeText(getActivity(), R.string.login_alert, Toast.LENGTH_SHORT).show();
                     startActivity(new Intent(getActivity(), LoginActivity.class));
                 }
             }
@@ -159,11 +176,13 @@ public class MovieProfileFragment extends Fragment {
         tvRating.setText(movie.getRating() + "/10");
         tvVotes.setText("(" + movie.getVotes() + " votes)");
         tvWriter.setText(movie.getWriter());
-        Picasso.with(getActivity().getApplicationContext())
+        Picasso.with(getActivity())
                 .load(movie.getPoster())
                 .error(R.drawable.placeholder)
                 .placeholder(R.drawable.placeholder)
                 .into(ivPoster);
+        topCasts = (List)movie.getTopCasts();
+        mAdapter.loadNewData(topCasts);
     }
 
     @Override
@@ -186,6 +205,31 @@ public class MovieProfileFragment extends Fragment {
     private void showAddButton(boolean isShow){
         btAdd.setVisibility(isShow ? View.VISIBLE: View.GONE);
         btRemove.setVisibility(isShow ? View.GONE : View.VISIBLE);
+    }
+
+    @Override
+    public void onRowClicked(int position) {
+        Long id = ((Actor)topCasts.get(position)).getId();
+        Log.d(Constants.TOKEN, id.toString());
+        final FragmentTransaction ft = getFragmentManager().beginTransaction();
+        Bundle bundle = new Bundle();
+        bundle.putLong(Constants.ID, id);
+        final ActorProfileFragment actorProfileFragment = new ActorProfileFragment();
+        actorProfileFragment.setArguments(bundle);
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                ft.replace(R.id.content_frame, actorProfileFragment);
+                ft.addToBackStack(null);
+                ft.commit();
+            }
+        }, 500);
+    }
+
+    @Override
+    public void onViewClicked(View v, int position) {
+
     }
 
     public class ProcessMovieList extends GetMovieJsonData {
