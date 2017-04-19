@@ -1,7 +1,8 @@
 package group2.ictk59.moviedatabase.fragment;
 
+import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -19,7 +20,6 @@ import android.widget.ProgressBar;
 import java.util.ArrayList;
 import java.util.List;
 
-import group2.ictk59.moviedatabase.Constants;
 import group2.ictk59.moviedatabase.GetActorJsonData;
 import group2.ictk59.moviedatabase.R;
 import group2.ictk59.moviedatabase.model.Actor;
@@ -36,6 +36,21 @@ public class CelebsFragment extends Fragment implements RecyclerViewClickListene
     private RecyclerView rvActorHorizontal;
     private AdapterHorizontal mAdapter;
     private ProgressBar mProgressBar;
+    OnItemSelectedListener mCallback;
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+
+        Activity activity = (Activity) context;
+
+        try {
+            mCallback = (OnItemSelectedListener) activity;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(activity.toString()
+                    + " must implement OnItemSelectedListener");
+        }
+    }
 
     @Nullable
     @Override
@@ -64,7 +79,7 @@ public class CelebsFragment extends Fragment implements RecyclerViewClickListene
                 FragmentTransaction ft = getFragmentManager().beginTransaction();
                 switch (position){
                     case 0:
-                        toActorListFragment("popularity", true, ft);
+                        mCallback.toActorListFragment("popularity", true);
                         break;
                     case 1:
                         break;
@@ -74,17 +89,6 @@ public class CelebsFragment extends Fragment implements RecyclerViewClickListene
         });
 
         return rootView;
-    }
-
-    private void toActorListFragment(String orderBy, boolean desc, FragmentTransaction ft){
-        Bundle bundle = new Bundle();
-        bundle.putString("orderby", orderBy);
-        bundle.putBoolean("desc", desc);
-        ActorListFragment actorListFragment = new ActorListFragment();
-        actorListFragment.setArguments(bundle);
-        ft.replace(R.id.content_frame, actorListFragment);
-        ft.addToBackStack(null);
-        ft.commit();
     }
 
     @Override
@@ -98,20 +102,7 @@ public class CelebsFragment extends Fragment implements RecyclerViewClickListene
     @Override
     public void onRowClicked(int position) {
         Long id = ((Actor)mAdapter.getListItem(position)).getId();
-        final FragmentTransaction ft = getFragmentManager().beginTransaction();
-        Bundle bundle = new Bundle();
-        bundle.putLong(Constants.ID, id);
-        final ActorProfileFragment actorProfileFragment = new ActorProfileFragment();
-        actorProfileFragment.setArguments(bundle);
-        Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                ft.replace(R.id.content_frame, actorProfileFragment);
-                ft.addToBackStack(null);
-                ft.commit();
-            }
-        }, 500);
+        mCallback.onActorSelected(id);
     }
 
     @Override

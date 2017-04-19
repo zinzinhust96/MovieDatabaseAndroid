@@ -3,9 +3,11 @@ package group2.ictk59.moviedatabase.activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -19,6 +21,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.gson.JsonObject;
 import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Ion;
 
@@ -32,14 +35,19 @@ import java.util.List;
 import group2.ictk59.moviedatabase.Constants;
 import group2.ictk59.moviedatabase.R;
 import group2.ictk59.moviedatabase.RESTServiceApplication;
+import group2.ictk59.moviedatabase.fragment.ActorListFragment;
+import group2.ictk59.moviedatabase.fragment.ActorProfileFragment;
 import group2.ictk59.moviedatabase.fragment.CelebsFragment;
 import group2.ictk59.moviedatabase.fragment.HomeFragment;
+import group2.ictk59.moviedatabase.fragment.MovieListFragment;
+import group2.ictk59.moviedatabase.fragment.MovieProfileFragment;
 import group2.ictk59.moviedatabase.fragment.MoviesFragment;
+import group2.ictk59.moviedatabase.fragment.OnItemSelectedListener;
 import group2.ictk59.moviedatabase.fragment.SearchResultFragment;
 import group2.ictk59.moviedatabase.fragment.WatchlistFragment;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener, OnItemSelectedListener {
 
     public static final String LOG_TAG = "Main Activity";
 
@@ -196,6 +204,126 @@ public class MainActivity extends AppCompatActivity
                         }
                     }
                 });
+    }
+
+    @Override
+    public void onMovieSelected(Long id) {
+        final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        Bundle bundle = new Bundle();
+        bundle.putLong(Constants.ID, id);
+        final MovieProfileFragment movieProfileFragment = new MovieProfileFragment();
+        movieProfileFragment.setArguments(bundle);
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                ft.replace(R.id.content_frame, movieProfileFragment);
+                ft.addToBackStack(null);
+                ft.commit();
+            }
+        }, 500);
+    }
+
+    @Override
+    public void onActorSelected(Long id) {
+        final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        Bundle bundle = new Bundle();
+        bundle.putLong(Constants.ID, id);
+        final ActorProfileFragment actorProfileFragment = new ActorProfileFragment();
+        actorProfileFragment.setArguments(bundle);
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                ft.replace(R.id.content_frame, actorProfileFragment);
+                ft.addToBackStack(null);
+                ft.commit();
+            }
+        }, 500);
+    }
+
+    @Override
+    public void onViewSelected(View v, final Long id) {
+        JsonObject object = new JsonObject();
+        object.addProperty("action", "modify_watchlist");
+        object.addProperty("movie_id", id.toString());
+        if (v.getId() == R.id.ivAdd){
+            if (RESTServiceApplication.getInstance().isLogin()){
+                Ion.with(this)
+                        .load("http://localhost:5000/api/user/action?" + Constants.ACCESS_TOKEN + "=" + RESTServiceApplication.getInstance().getAccessToken())
+                        .setJsonObjectBody(object)
+                        .asString()
+                        .setCallback(new FutureCallback<String>() {
+                            @Override
+                            public void onCompleted(Exception e, String result) {
+                                try {
+                                    JSONObject jsonObject = new JSONObject(result);
+                                    String status = jsonObject.getString(Constants.STATUS);
+                                    if (status.equalsIgnoreCase(Constants.SUCCESS)){
+                                        //add to list<long> watchlistId
+                                        List<Long> watchlistId = RESTServiceApplication.getInstance().getWatchlistId();
+                                        watchlistId.add(id);
+                                        RESTServiceApplication.getInstance().setWatchlistId(watchlistId);
+                                    }
+                                } catch (JSONException e1) {
+                                    e1.printStackTrace();
+                                }
+                            }
+                        });
+            }else {
+                Toast.makeText(this, R.string.login_alert, Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(this, LoginActivity.class));
+            }
+
+        }else if (v.getId() == R.id.ivRemove){
+            Ion.with(this)
+                    .load("http://localhost:5000/api/user/action?" + Constants.ACCESS_TOKEN + "=" + RESTServiceApplication.getInstance().getAccessToken())
+                    .setJsonObjectBody(object)
+                    .asString()
+                    .setCallback(new FutureCallback<String>() {
+                        @Override
+                        public void onCompleted(Exception e, String result) {
+                            try {
+                                JSONObject jsonObject = new JSONObject(result);
+                                String status = jsonObject.getString(Constants.STATUS);
+                                if (status.equalsIgnoreCase(Constants.SUCCESS)){
+                                    //add to list<long> watchlistId
+                                    List<Long> watchlistId = RESTServiceApplication.getInstance().getWatchlistId();
+                                    watchlistId.remove(id);
+                                    RESTServiceApplication.getInstance().setWatchlistId(watchlistId);
+                                }
+                            } catch (JSONException e1) {
+                                e1.printStackTrace();
+                            }
+                        }
+                    });
+        }
+    }
+
+    @Override
+    public void toMovieListFragment(String orderBy, boolean desc) {
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        Bundle bundle = new Bundle();
+        bundle.putString("orderby", orderBy);
+        bundle.putBoolean("desc", desc);
+        MovieListFragment movieListFragment = new MovieListFragment();
+        movieListFragment.setArguments(bundle);
+        ft.replace(R.id.content_frame, movieListFragment);
+        ft.addToBackStack(null);
+        ft.commit();
+    }
+
+    @Override
+    public void toActorListFragment(String orderBy, boolean desc) {
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        Bundle bundle = new Bundle();
+        bundle.putString("orderby", orderBy);
+        bundle.putBoolean("desc", desc);
+        ActorListFragment actorListFragment = new ActorListFragment();
+        actorListFragment.setArguments(bundle);
+        ft.replace(R.id.content_frame, actorListFragment);
+        ft.addToBackStack(null);
+        ft.commit();
     }
 
     private void showLogin(boolean isLogOut){

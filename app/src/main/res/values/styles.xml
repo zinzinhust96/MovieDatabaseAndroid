@@ -3,6 +3,8 @@
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.NoActionBar">
         <!-- Customize your theme here. -->
+        <item name="android:actionOverflowButtonStyle">@style/MyActionButtonOverflow</item>
+        <item name="android:dropDownListViewStyle">@style/MyDropDownListView</item>
     </style>
 
     <style name="Theme.Base" parent="AppTheme">
@@ -14,7 +16,8 @@
         <item name="android:textColor">@color/bodyTextColor</item>
     </style>
 
-    <style name="Theme.IMDb" parent="Theme.Base"></style>
+    <style name="Theme.IMDb" parent="Theme.Base">
+    </style>
 
     <style name="AppTheme.NoActionBar">
         <item name="windowActionBar">false</item>
@@ -30,9 +33,27 @@
         <item name="android:textColorHint">@color/secondaryTextColor</item>
     </style>
 
+    <style name="PopUpThemeOverlay" parent="">
+        <item name="android:actionMenuTextColor">@color/primaryTextColor</item>
+        <item name="android:textColor">@color/primaryTextColor</item>
+    </style>
+
     <style name="ActionBarTitleText" parent="Base.TextAppearance.AppCompat.Widget.ActionBar.Title">
         <item name="android:textColor">@color/primaryTextColor</item>
         <item name="android:textSize">18sp</item>
+    </style>
+
+    <!-- Style to replace actionbar overflow icon. set item 'android:actionOverflowButtonStyle' in AppTheme -->
+    <style name="MyActionButtonOverflow" parent="android:style/Widget.Holo.ActionButton.Overflow">
+        <item name="android:src">@android:drawable/ic_menu_sort_by_size</item>
+        <item name="android:background">@color/colorPrimary</item>
+        <item name="android:actionMenuTextColor">@color/primaryTextColor</item>
+        <item name="android:textColor">@color/primaryTextColor</item>
+    </style>
+
+    <!-- style the items within the overflow menu -->
+    <style name="MyDropDownListView" parent="android:style/Widget.Holo.ListView.DropDown">
+        <item name="android:textColor">@color/primaryTextColor</item>
     </style>
 
     <style name="Theme.IMDb.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar"/>

@@ -1,11 +1,10 @@
 package group2.ictk59.moviedatabase.fragment;
 
-import android.content.Intent;
+import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -15,16 +14,9 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.google.gson.JsonObject;
-import com.koushikdutta.async.future.FutureCallback;
-import com.koushikdutta.ion.Ion;
 import com.ms.square.android.expandabletextview.ExpandableTextView;
 import com.squareup.picasso.Picasso;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -38,8 +30,6 @@ import java.util.Locale;
 import group2.ictk59.moviedatabase.Constants;
 import group2.ictk59.moviedatabase.GetActorJsonData;
 import group2.ictk59.moviedatabase.R;
-import group2.ictk59.moviedatabase.RESTServiceApplication;
-import group2.ictk59.moviedatabase.activity.LoginActivity;
 import group2.ictk59.moviedatabase.model.Actor;
 import group2.ictk59.moviedatabase.model.Movie;
 import group2.ictk59.moviedatabase.recycleview.AdapterHorizontal;
@@ -60,6 +50,22 @@ public class ActorProfileFragment extends Fragment implements RecyclerViewClickL
     LinearLayout llDeathDay;
 
     private List knownFor;
+
+    OnItemSelectedListener mCallback;
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+
+        Activity activity = (Activity) context;
+
+        try {
+            mCallback = (OnItemSelectedListener) activity;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(activity.toString()
+                    + " must implement OnItemSelectedListener");
+        }
+    }
 
     @Nullable
     @Override
@@ -154,79 +160,13 @@ public class ActorProfileFragment extends Fragment implements RecyclerViewClickL
     @Override
     public void onRowClicked(int position) {
         Long id = ((Movie)knownFor.get(position)).getId();
-        final FragmentTransaction ft = getFragmentManager().beginTransaction();
-        Bundle bundle = new Bundle();
-        bundle.putLong(Constants.ID, id);
-        final MovieProfileFragment movieProfileFragment = new MovieProfileFragment();
-        movieProfileFragment.setArguments(bundle);
-        Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                ft.replace(R.id.content_frame, movieProfileFragment);
-                ft.addToBackStack(null);
-                ft.commit();
-            }
-        }, 500);
+        mCallback.onMovieSelected(id);
     }
 
     @Override
     public void onViewClicked(View v, int position) {
         final Long id = ((Movie)knownFor.get(position)).getId();
-        JsonObject object = new JsonObject();
-        object.addProperty("action", "modify_watchlist");
-        object.addProperty("movie_id", id.toString());
-        if (v.getId() == R.id.ivAdd){
-            if (RESTServiceApplication.getInstance().isLogin()){
-                Ion.with(getActivity())
-                        .load("http://localhost:5000/api/user/action?" + Constants.ACCESS_TOKEN + "=" + RESTServiceApplication.getInstance().getAccessToken())
-                        .setJsonObjectBody(object)
-                        .asString()
-                        .setCallback(new FutureCallback<String>() {
-                            @Override
-                            public void onCompleted(Exception e, String result) {
-                                try {
-                                    JSONObject jsonObject = new JSONObject(result);
-                                    String status = jsonObject.getString(Constants.STATUS);
-                                    if (status.equalsIgnoreCase(Constants.SUCCESS)){
-                                        //add to list<long> watchlistId
-                                        List<Long> watchlistId = RESTServiceApplication.getInstance().getWatchlistId();
-                                        watchlistId.add(id);
-                                        RESTServiceApplication.getInstance().setWatchlistId(watchlistId);
-                                    }
-                                } catch (JSONException e1) {
-                                    e1.printStackTrace();
-                                }
-                            }
-                        });
-            }else {
-                Toast.makeText(getActivity(), R.string.login_alert, Toast.LENGTH_SHORT).show();
-                startActivity(new Intent(getActivity(), LoginActivity.class));
-            }
-
-        }else if (v.getId() == R.id.ivRemove){
-            Ion.with(getActivity())
-                    .load("http://localhost:5000/api/user/action?" + Constants.ACCESS_TOKEN + "=" + RESTServiceApplication.getInstance().getAccessToken())
-                    .setJsonObjectBody(object)
-                    .asString()
-                    .setCallback(new FutureCallback<String>() {
-                        @Override
-                        public void onCompleted(Exception e, String result) {
-                            try {
-                                JSONObject jsonObject = new JSONObject(result);
-                                String status = jsonObject.getString(Constants.STATUS);
-                                if (status.equalsIgnoreCase(Constants.SUCCESS)){
-                                    //add to list<long> watchlistId
-                                    List<Long> watchlistId = RESTServiceApplication.getInstance().getWatchlistId();
-                                    watchlistId.remove(id);
-                                    RESTServiceApplication.getInstance().setWatchlistId(watchlistId);
-                                }
-                            } catch (JSONException e1) {
-                                e1.printStackTrace();
-                            }
-                        }
-                    });
-        }
+        mCallback.onViewSelected(v, id);
     }
 
     public class ProcessActor extends GetActorJsonData {

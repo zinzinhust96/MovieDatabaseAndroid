@@ -1,10 +1,10 @@
 package group2.ictk59.moviedatabase.fragment;
 
+import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -12,11 +12,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 
-import group2.ictk59.moviedatabase.Constants;
 import group2.ictk59.moviedatabase.GetActorJsonData;
 import group2.ictk59.moviedatabase.R;
 import group2.ictk59.moviedatabase.model.Actor;
@@ -32,6 +30,21 @@ public class ActorListFragment extends Fragment implements RecyclerViewClickList
     private RecyclerView rvActorList;
     private ListRecyclerViewAdapter mAdapter;
     private ProgressBar mProgressBar;
+    OnItemSelectedListener mCallback;
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+
+        Activity activity = (Activity) context;
+
+        try {
+            mCallback = (OnItemSelectedListener) activity;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(activity.toString()
+                    + " must implement OnItemSelectedListener");
+        }
+    }
 
     @Nullable
     @Override
@@ -63,21 +76,7 @@ public class ActorListFragment extends Fragment implements RecyclerViewClickList
     @Override
     public void onRowClicked(int position) {
         Long id = ((Actor)mAdapter.getListItem(position)).getId();
-        final FragmentTransaction ft = getFragmentManager().beginTransaction();
-        Bundle bundle = new Bundle();
-        bundle.putLong(Constants.ID, id);
-        final ActorProfileFragment actorProfileFragment = new ActorProfileFragment();
-        actorProfileFragment.setArguments(bundle);
-        Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                ft.replace(R.id.content_frame, actorProfileFragment);
-                ft.addToBackStack(null);
-                ft.commit();
-            }
-        }, 500);
-
+        mCallback.onActorSelected(id);
     }
 
     @Override

@@ -1,8 +1,8 @@
 package group2.ictk59.moviedatabase.fragment;
 
-import android.content.Intent;
+import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -16,23 +16,12 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.ProgressBar;
-import android.widget.Toast;
-
-import com.google.gson.JsonObject;
-import com.koushikdutta.async.future.FutureCallback;
-import com.koushikdutta.ion.Ion;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import group2.ictk59.moviedatabase.Constants;
 import group2.ictk59.moviedatabase.GetMovieJsonData;
 import group2.ictk59.moviedatabase.R;
-import group2.ictk59.moviedatabase.RESTServiceApplication;
-import group2.ictk59.moviedatabase.activity.LoginActivity;
 import group2.ictk59.moviedatabase.model.Movie;
 import group2.ictk59.moviedatabase.recycleview.AdapterHorizontal;
 import group2.ictk59.moviedatabase.recycleview.RecyclerViewClickListener;
@@ -47,6 +36,21 @@ public class MoviesFragment extends Fragment implements RecyclerViewClickListene
     private RecyclerView rvMovieHorizontal;
     private AdapterHorizontal mAdapter;
     private ProgressBar mProgressBar;
+    OnItemSelectedListener mCallback;
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+
+        Activity activity = (Activity) context;
+
+        try {
+            mCallback = (OnItemSelectedListener) activity;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(activity.toString()
+                    + " must implement OnItemSelectedListener");
+        }
+    }
 
     @Nullable
     @Override
@@ -83,18 +87,18 @@ public class MoviesFragment extends Fragment implements RecyclerViewClickListene
         lvMoviesItems.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                FragmentTransaction ft = getFragmentManager().beginTransaction();
                 switch (position){
                     case 0:
-                        toMovieListFragment("rating", true, ft);
+                        mCallback.toMovieListFragment("rating", true);
                         break;
                     case 1:
-                        toMovieListFragment("rating", false, ft);
+                        mCallback.toMovieListFragment("rating", false);
                         break;
                     case 2:
-                        toMovieListFragment("year", true, ft);
+                        mCallback.toMovieListFragment("year", true);
                         break;
                     case 3:
+                        FragmentTransaction ft = getFragmentManager().beginTransaction();
                         ft.replace(R.id.content_frame, new GenreFragment());
                         ft.addToBackStack(null);
                         ft.commit();
@@ -112,16 +116,6 @@ public class MoviesFragment extends Fragment implements RecyclerViewClickListene
         rvMovieHorizontal.setVisibility(isShow ? View.INVISIBLE : View.VISIBLE);
     }
 
-    private void toMovieListFragment(String orderBy, boolean desc, FragmentTransaction ft){
-        Bundle bundle = new Bundle();
-        bundle.putString("orderby", orderBy);
-        bundle.putBoolean("desc", desc);
-        MovieListFragment movieListFragment = new MovieListFragment();
-        movieListFragment.setArguments(bundle);
-        ft.replace(R.id.content_frame, movieListFragment);
-        ft.addToBackStack(null);
-        ft.commit();
-    }
 
     @Override
     public void onResume() {
@@ -134,80 +128,13 @@ public class MoviesFragment extends Fragment implements RecyclerViewClickListene
     @Override
     public void onRowClicked(int position) {
         Long id = ((Movie)mAdapter.getListItem(position)).getId();
-        final FragmentTransaction ft = getFragmentManager().beginTransaction();
-        Bundle bundle = new Bundle();
-        bundle.putLong(Constants.ID, id);
-        final MovieProfileFragment movieProfileFragment = new MovieProfileFragment();
-        movieProfileFragment.setArguments(bundle);
-        Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                ft.replace(R.id.content_frame, movieProfileFragment);
-                ft.addToBackStack(null);
-                ft.commit();
-            }
-        }, 500);
-
+        mCallback.onMovieSelected(id);
     }
 
     @Override
     public void onViewClicked(View v, int position) {
         final Long id = ((Movie)mAdapter.getListItem(position)).getId();
-        JsonObject object = new JsonObject();
-        object.addProperty("action", "modify_watchlist");
-        object.addProperty("movie_id", id.toString());
-        if (v.getId() == R.id.ivAdd){
-            if (RESTServiceApplication.getInstance().isLogin()){
-                Ion.with(getActivity())
-                        .load("http://localhost:5000/api/user/action?" + Constants.ACCESS_TOKEN + "=" + RESTServiceApplication.getInstance().getAccessToken())
-                        .setJsonObjectBody(object)
-                        .asString()
-                        .setCallback(new FutureCallback<String>() {
-                            @Override
-                            public void onCompleted(Exception e, String result) {
-                                try {
-                                    JSONObject jsonObject = new JSONObject(result);
-                                    String status = jsonObject.getString(Constants.STATUS);
-                                    if (status.equalsIgnoreCase(Constants.SUCCESS)){
-                                        //add to list<long> watchlistId
-                                        List<Long> watchlistId = RESTServiceApplication.getInstance().getWatchlistId();
-                                        watchlistId.add(id);
-                                        RESTServiceApplication.getInstance().setWatchlistId(watchlistId);
-                                    }
-                                } catch (JSONException e1) {
-                                    e1.printStackTrace();
-                                }
-                            }
-                        });
-            }else {
-                Toast.makeText(getActivity(), R.string.login_alert, Toast.LENGTH_SHORT).show();
-                startActivity(new Intent(getActivity(), LoginActivity.class));
-            }
-
-        }else if (v.getId() == R.id.ivRemove){
-            Ion.with(getActivity())
-                    .load("http://localhost:5000/api/user/action?" + Constants.ACCESS_TOKEN + "=" + RESTServiceApplication.getInstance().getAccessToken())
-                    .setJsonObjectBody(object)
-                    .asString()
-                    .setCallback(new FutureCallback<String>() {
-                        @Override
-                        public void onCompleted(Exception e, String result) {
-                            try {
-                                JSONObject jsonObject = new JSONObject(result);
-                                String status = jsonObject.getString(Constants.STATUS);
-                                if (status.equalsIgnoreCase(Constants.SUCCESS)){
-                                    //add to list<long> watchlistId
-                                    List<Long> watchlistId = RESTServiceApplication.getInstance().getWatchlistId();
-                                    watchlistId.remove(id);
-                                    RESTServiceApplication.getInstance().setWatchlistId(watchlistId);
-                                }
-                            } catch (JSONException e1) {
-                                e1.printStackTrace();
-                            }
-                        }
-                    });
-        }
+        mCallback.onViewSelected(v, id);
     }
 
     public class ProcessMovieList extends GetMovieJsonData {
@@ -239,6 +166,5 @@ public class MoviesFragment extends Fragment implements RecyclerViewClickListene
             }
         }
     }
-
 
 }
