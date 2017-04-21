@@ -95,9 +95,10 @@ public class ActorProfileFragment extends Fragment implements RecyclerViewClickL
     }
 
     private void updateView(Actor actor){
-        etvBio.setText(actor.getBiography());
+
+        etvBio.setText(actor.getBiography().equalsIgnoreCase("null") ? "" : actor.getBiography());
         tvFullName.setText(actor.getName());
-        tvPopularity.setText(String.valueOf(actor.getPopularity()));
+        tvPopularity.setText(String.format(Locale.US, "%f", actor.getPopularity()));
 
         DateFormat fromData = new SimpleDateFormat("yyyy-MM-dd");
         DateFormat myFormat = new SimpleDateFormat("MMMM dd, yyyy", Locale.US);
@@ -118,7 +119,7 @@ public class ActorProfileFragment extends Fragment implements RecyclerViewClickL
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        tvPlaceOfBirth.setText(actor.getPlaceOfBirth());
+        tvPlaceOfBirth.setText(actor.getPlaceOfBirth().equalsIgnoreCase("null") ? "" : actor.getPlaceOfBirth());
         if (actor.getProfilePic() == null){
             actor.setProfilePic("");
         }

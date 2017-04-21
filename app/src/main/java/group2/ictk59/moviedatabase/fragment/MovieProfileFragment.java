@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -52,6 +53,7 @@ public class MovieProfileFragment extends Fragment implements RecyclerViewClickL
     ImageView ivPoster;
     Button btAdd, btRemove;
     RecyclerView rvActorList;
+    RatingBar ratingBar;
 
     private List topCasts;
     OnItemSelectedListener mCallback;
@@ -175,6 +177,8 @@ public class MovieProfileFragment extends Fragment implements RecyclerViewClickL
                         });
             }
         });
+
+        ratingBar = (RatingBar)view.findViewById(R.id.ratingBar);
     }
 
     private void updateView(Movie movie){
@@ -197,6 +201,14 @@ public class MovieProfileFragment extends Fragment implements RecyclerViewClickL
                 .into(ivPoster);
         topCasts = (List)movie.getTopCasts();
         mAdapter.loadNewData(topCasts);
+
+        ratingBar.setRating(3.5f);
+        ratingBar.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
+            @Override
+            public void onRatingChanged(RatingBar ratingBar, float rating, boolean fromUser) {
+                Toast.makeText(getActivity(), String.valueOf(rating * 2), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     @Override

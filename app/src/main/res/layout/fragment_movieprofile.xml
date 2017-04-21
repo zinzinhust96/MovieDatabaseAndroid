@@ -182,6 +182,23 @@
 
             </LinearLayout>
 
+            <TextView
+                android:layout_marginTop="10dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:text="Rate this movie"
+                android:textSize="20sp"
+                />
+
+            <RatingBar
+                android:id="@+id/ratingBar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="5dp"
+                android:numStars="5"/>
+
             <Button
                 android:id="@+id/btAdd"
                 android:layout_margin="10dp"

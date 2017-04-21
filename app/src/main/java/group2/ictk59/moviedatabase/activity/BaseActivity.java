@@ -11,8 +11,6 @@ import group2.ictk59.moviedatabase.R;
 
 public abstract class BaseActivity extends AppCompatActivity {
 
-    public static final String IMDB_QUERY = "IMDb_QUERY";
-
     protected Toolbar mToolbar;
 
     protected Toolbar activateToolbar(){

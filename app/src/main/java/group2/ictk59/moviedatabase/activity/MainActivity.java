@@ -201,6 +201,8 @@ public class MainActivity extends AppCompatActivity
                             }
                         } catch (JSONException e1) {
                             e1.printStackTrace();
+                        } catch (NullPointerException e1){
+                            e1.printStackTrace();
                         }
                     }
                 });
