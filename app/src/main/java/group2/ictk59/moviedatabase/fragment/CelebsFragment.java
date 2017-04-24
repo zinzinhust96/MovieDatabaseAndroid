@@ -58,10 +58,6 @@ public class CelebsFragment extends BaseFragment implements RecyclerViewClickLis
         View rootView = inflater.inflate(R.layout.fragment_celebs, container, false);
         mProgressBar = (ProgressBar)rootView.findViewById(R.id.progress_bar);
 
-        if (!isNetworkConnected()){
-            AlertDialogWrapper.showAlertDialog(getActivity());
-        }
-
         LinearLayoutManager layoutManager =
                 new LinearLayoutManager(getActivity().getApplicationContext(), LinearLayoutManager.HORIZONTAL, false);
         rvActorHorizontal = (RecyclerView)rootView.findViewById(R.id.rvActorHorizontal);
@@ -98,8 +94,12 @@ public class CelebsFragment extends BaseFragment implements RecyclerViewClickLis
     @Override
     public void onResume() {
         super.onResume();
-        ProcessActorList processMovieList = new ProcessActorList("popularity", true, "10");
-        processMovieList.execute();
+        if (!isNetworkConnected()){
+            AlertDialogWrapper.showAlertDialog(getActivity());
+        }else {
+            ProcessActorList processMovieList = new ProcessActorList("popularity", true, "10");
+            processMovieList.execute();
+        }
         ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle("Celebs");
     }
 

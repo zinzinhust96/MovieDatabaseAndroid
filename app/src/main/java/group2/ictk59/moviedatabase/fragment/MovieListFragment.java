@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -15,6 +14,7 @@ import android.widget.ProgressBar;
 
 import java.util.ArrayList;
 
+import group2.ictk59.moviedatabase.AlertDialogWrapper;
 import group2.ictk59.moviedatabase.GetMovieJsonData;
 import group2.ictk59.moviedatabase.R;
 import group2.ictk59.moviedatabase.model.Movie;
@@ -26,7 +26,7 @@ import group2.ictk59.moviedatabase.recycleview.RecyclerViewClickListener;
  * Created by ZinZin on 3/31/2017.
  */
 
-public class MovieListFragment extends Fragment implements RecyclerViewClickListener {
+public class MovieListFragment extends BaseFragment implements RecyclerViewClickListener {
 
     private RecyclerView rvMovieList;
     private ListRecyclerViewAdapter mAdapter;
@@ -71,8 +71,12 @@ public class MovieListFragment extends Fragment implements RecyclerViewClickList
         if (genre == null){
             genre = "";
         }
-        ProcessMovieList processMovieList = new ProcessMovieList(genre, orderBy, desc, "50");
-        processMovieList.execute();
+        if (!isNetworkConnected()){
+            AlertDialogWrapper.showAlertDialog(getActivity());
+        }else {
+            ProcessMovieList processMovieList = new ProcessMovieList(genre, orderBy, desc, "50");
+            processMovieList.execute();
+        }
         if (!genre.equalsIgnoreCase("")){
             ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle("Best " + genre + " Movies");
         }

@@ -160,7 +160,8 @@ public class WatchlistFragment extends Fragment implements RecyclerViewClickList
         public class ProcessData extends DownloadJsonData {
             @Override
             protected void onPreExecute() {
-//                mProgressBar.setVisibility(View.VISIBLE);
+                mProgressBar.setVisibility(View.VISIBLE);
+                rvMovieList.setVisibility(View.GONE);
             }
 
             @Override
@@ -171,6 +172,7 @@ public class WatchlistFragment extends Fragment implements RecyclerViewClickList
                     tvNoResults.setVisibility(View.VISIBLE);
                 }else {
                     mAdapter.loadNewData(getMovies());
+                    rvMovieList.setVisibility(View.VISIBLE);
                 }
                 mProgressBar.setVisibility(View.GONE);
             }

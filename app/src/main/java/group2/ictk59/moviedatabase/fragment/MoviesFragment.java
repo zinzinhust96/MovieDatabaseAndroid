@@ -59,10 +59,6 @@ public class MoviesFragment extends BaseFragment implements RecyclerViewClickLis
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_movies, container, false);
 
-        if (!isNetworkConnected()){
-            AlertDialogWrapper.showAlertDialog(getActivity());
-        }
-
         mProgressBar = (ProgressBar)rootView.findViewById(R.id.progress_bar);
 
         LinearLayoutManager layoutManager =
@@ -119,8 +115,12 @@ public class MoviesFragment extends BaseFragment implements RecyclerViewClickLis
     @Override
     public void onResume() {
         super.onResume();
-        ProcessMovieList processMovieList = new ProcessMovieList("", "year", true, "10");
-        processMovieList.execute();
+        if (!isNetworkConnected()){
+            AlertDialogWrapper.showAlertDialog(getActivity());
+        }else{
+            ProcessMovieList processMovieList = new ProcessMovieList("", "year", true, "10");
+            processMovieList.execute();
+        }
         ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle("Movie");
     }
 

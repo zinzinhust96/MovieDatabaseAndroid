@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -15,6 +14,7 @@ import android.widget.ProgressBar;
 
 import java.util.ArrayList;
 
+import group2.ictk59.moviedatabase.AlertDialogWrapper;
 import group2.ictk59.moviedatabase.GetActorJsonData;
 import group2.ictk59.moviedatabase.R;
 import group2.ictk59.moviedatabase.model.Actor;
@@ -25,7 +25,7 @@ import group2.ictk59.moviedatabase.recycleview.RecyclerViewClickListener;
  * Created by ZinZin on 4/1/2017.
  */
 
-public class ActorListFragment extends Fragment implements RecyclerViewClickListener {
+public class ActorListFragment extends BaseFragment implements RecyclerViewClickListener {
 
     private RecyclerView rvActorList;
     private ListRecyclerViewAdapter mAdapter;
@@ -69,8 +69,12 @@ public class ActorListFragment extends Fragment implements RecyclerViewClickList
         if (orderBy != null){
             ((AppCompatActivity)getActivity()).getSupportActionBar().setTitle("Most Popular Celebrities");
         }
-        ProcessActorList processMovieList = new ProcessActorList(orderBy, desc, "50");
-        processMovieList.execute();
+        if (!isNetworkConnected()){
+            AlertDialogWrapper.showAlertDialog(getActivity());
+        }else {
+            ProcessActorList processMovieList = new ProcessActorList(orderBy, desc, "50");
+            processMovieList.execute();
+        }
     }
 
     @Override
@@ -97,7 +101,7 @@ public class ActorListFragment extends Fragment implements RecyclerViewClickList
         public class ProcessData extends GetActorJsonData.DownloadJsonData {
             @Override
             protected void onPreExecute() {
-//                mProgressBar.setVisibility(View.VISIBLE);
+                mProgressBar.setVisibility(View.VISIBLE);
             }
 
             @Override

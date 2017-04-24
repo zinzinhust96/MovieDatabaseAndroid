@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -17,6 +16,7 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
+import group2.ictk59.moviedatabase.AlertDialogWrapper;
 import group2.ictk59.moviedatabase.Constants;
 import group2.ictk59.moviedatabase.GetActorJsonData;
 import group2.ictk59.moviedatabase.GetMovieJsonData;
@@ -30,7 +30,7 @@ import group2.ictk59.moviedatabase.recycleview.RecyclerViewClickListener;
  * Created by ZinZin on 4/13/2017.
  */
 
-public class SearchResultFragment extends Fragment implements RecyclerViewClickListener {
+public class SearchResultFragment extends BaseFragment implements RecyclerViewClickListener {
 
     private static final String LOG_TAG = "SearchResultFragment";
 
@@ -78,11 +78,15 @@ public class SearchResultFragment extends Fragment implements RecyclerViewClickL
         items = new ArrayList<>();
         String query = getArguments().getString(Constants.IMDB_QUERY);
         Log.e(Constants.IMDB_QUERY, query);
-        if (query.length() > 0) {
-            ProcessMovieList processMovieList = new ProcessMovieList(query);
-            processMovieList.execute();
-            ProcessActorList processActorList = new ProcessActorList(query);
-            processActorList.execute();
+        if (!isNetworkConnected()){
+            AlertDialogWrapper.showAlertDialog(getActivity());
+        }else {
+            if (query.length() > 0) {
+                ProcessMovieList processMovieList = new ProcessMovieList(query);
+                processMovieList.execute();
+                ProcessActorList processActorList = new ProcessActorList(query);
+                processActorList.execute();
+            }
         }
         ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle("Search Result");
     }
@@ -121,6 +125,12 @@ public class SearchResultFragment extends Fragment implements RecyclerViewClickL
         public class ProcessData extends DownloadJsonData {
 
             @Override
+            protected void onPreExecute() {
+                mProgressBar.setVisibility(View.VISIBLE);
+                rvSearchResult.setVisibility(View.GONE);
+            }
+
+            @Override
             protected void onPostExecute(String webData) {
                 super.onPostExecute(webData);
                 items.addAll(getMovies());
@@ -154,6 +164,7 @@ public class SearchResultFragment extends Fragment implements RecyclerViewClickL
                     mSearchResultViewAdapter.loadNewData(items);
                 }
                 mProgressBar.setVisibility(View.GONE);
+                rvSearchResult.setVisibility(View.VISIBLE);
             }
 
             @Override

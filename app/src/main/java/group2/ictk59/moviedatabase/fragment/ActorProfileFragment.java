@@ -153,6 +153,7 @@ public class ActorProfileFragment extends Fragment implements RecyclerViewClickL
     public void onResume() {
         super.onResume();
         Long id = getArguments().getLong(Constants.ID);
+
         ProcessActor processActor = new ProcessActor(id);
         processActor.execute();
         ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle("Actor Profile");
