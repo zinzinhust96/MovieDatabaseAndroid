@@ -88,7 +88,7 @@ public class RegisterActivity extends BaseActivity {
                     user.addProperty(Constants.EMAIL, email);
 
                     Ion.with(getApplicationContext())
-                            .load("http://localhost:5000/api/register")
+                            .load(Constants.BASE_URL + "/api/register")
                             .setJsonObjectBody(user)
                             .asString()
                             .setCallback(new FutureCallback<String>() {

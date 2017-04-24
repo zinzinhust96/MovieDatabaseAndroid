@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -20,6 +19,7 @@ import android.widget.ProgressBar;
 import java.util.ArrayList;
 import java.util.List;
 
+import group2.ictk59.moviedatabase.AlertDialogWrapper;
 import group2.ictk59.moviedatabase.GetActorJsonData;
 import group2.ictk59.moviedatabase.R;
 import group2.ictk59.moviedatabase.model.Actor;
@@ -30,7 +30,7 @@ import group2.ictk59.moviedatabase.recycleview.RecyclerViewClickListener;
  * Created by ZinZin on 3/27/2017.
  */
 
-public class CelebsFragment extends Fragment implements RecyclerViewClickListener {
+public class CelebsFragment extends BaseFragment implements RecyclerViewClickListener {
 
     private ListView lvActorsItems;
     private RecyclerView rvActorHorizontal;
@@ -57,6 +57,10 @@ public class CelebsFragment extends Fragment implements RecyclerViewClickListene
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_celebs, container, false);
         mProgressBar = (ProgressBar)rootView.findViewById(R.id.progress_bar);
+
+        if (!isNetworkConnected()){
+            AlertDialogWrapper.showAlertDialog(getActivity());
+        }
 
         LinearLayoutManager layoutManager =
                 new LinearLayoutManager(getActivity().getApplicationContext(), LinearLayoutManager.HORIZONTAL, false);

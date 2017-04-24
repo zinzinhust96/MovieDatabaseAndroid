@@ -113,7 +113,7 @@ public class MovieProfileFragment extends Fragment implements RecyclerViewClickL
                     object.addProperty("action", "modify_watchlist");
                     object.addProperty("movie_id", id.toString());
                     Ion.with(getActivity())
-                            .load("http://localhost:5000/api/user/action?" + Constants.ACCESS_TOKEN + "=" + RESTServiceApplication.getInstance().getAccessToken())
+                            .load(Constants.BASE_URL + "/api/user/action?" + Constants.ACCESS_TOKEN + "=" + RESTServiceApplication.getInstance().getAccessToken())
                             .setJsonObjectBody(object)
                             .asString()
                             .setCallback(new FutureCallback<String>() {
@@ -152,7 +152,7 @@ public class MovieProfileFragment extends Fragment implements RecyclerViewClickL
                 object.addProperty("action", "modify_watchlist");
                 object.addProperty("movie_id", id.toString());
                 Ion.with(getActivity())
-                        .load("http://localhost:5000/api/user/action?" + Constants.ACCESS_TOKEN + "=" + RESTServiceApplication.getInstance().getAccessToken())
+                        .load(Constants.BASE_URL + "/api/user/action?" + Constants.ACCESS_TOKEN + "=" + RESTServiceApplication.getInstance().getAccessToken())
                         .setJsonObjectBody(object)
                         .asString()
                         .setCallback(new FutureCallback<String>() {

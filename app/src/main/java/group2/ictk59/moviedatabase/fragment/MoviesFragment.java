@@ -4,11 +4,11 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,6 +20,8 @@ import android.widget.ProgressBar;
 import java.util.ArrayList;
 import java.util.List;
 
+import group2.ictk59.moviedatabase.AlertDialogWrapper;
+import group2.ictk59.moviedatabase.Constants;
 import group2.ictk59.moviedatabase.GetMovieJsonData;
 import group2.ictk59.moviedatabase.R;
 import group2.ictk59.moviedatabase.model.Movie;
@@ -30,7 +32,7 @@ import group2.ictk59.moviedatabase.recycleview.RecyclerViewClickListener;
  * Created by ZinZin on 3/27/2017.
  */
 
-public class MoviesFragment extends Fragment implements RecyclerViewClickListener{
+public class MoviesFragment extends BaseFragment implements RecyclerViewClickListener{
 
     private ListView lvMoviesItems;
     private RecyclerView rvMovieHorizontal;
@@ -57,13 +59,10 @@ public class MoviesFragment extends Fragment implements RecyclerViewClickListene
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_movies, container, false);
 
-//        Toolbar toolbar = (Toolbar)rootView.findViewById(R.id.app_bar);
-//
-//        final DrawerLayout drawer = (DrawerLayout)rootView.findViewById(R.id.drawer_layout);
-//        final ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-//                getActivity(), drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-//        drawer.addDrawerListener(toggle);
-//        toggle.syncState();
+        if (!isNetworkConnected()){
+            AlertDialogWrapper.showAlertDialog(getActivity());
+        }
+
         mProgressBar = (ProgressBar)rootView.findViewById(R.id.progress_bar);
 
         LinearLayoutManager layoutManager =
@@ -156,6 +155,7 @@ public class MoviesFragment extends Fragment implements RecyclerViewClickListene
             @Override
             protected void onPostExecute(String webData) {
                 super.onPostExecute(webData);
+                Log.d(Constants.TOKEN, getMovies().toString());
                 mAdapter.loadNewData(getMovies());
                 showProgressBar(false);
             }

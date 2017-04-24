@@ -56,13 +56,13 @@ public class GetActorJsonData extends GetRawData {
     }
 
     public boolean createAndUpdateUri(Long id){
-        final String URL_FEED = "http://localhost:5000/api/actors/" + id.toString();
+        final String URL_FEED = Constants.BASE_URL + "/api/actors/" + id.toString();
         mDestinationUri = Uri.parse(URL_FEED);
         return mDestinationUri != null;
     }
 
     public boolean createAndUpdateUri(String name){
-        final String URL_FEED = "http://localhost:5000/api/actors/search";
+        final String URL_FEED = Constants.BASE_URL + "/api/actors/search";
         final String NAME_PARAMS = "string";
 
         mDestinationUri = Uri.parse(URL_FEED).buildUpon()
@@ -73,7 +73,7 @@ public class GetActorJsonData extends GetRawData {
     }
 
     public boolean createAndUpdateUri(String orderBy, boolean desc, String limit){
-        final String URL_FEED = "http://localhost:5000/api/actors";
+        final String URL_FEED = Constants.BASE_URL + "/api/actors";
         final String ORDERBY_PARAMS = "orderby";
         final String DESC_PARAMS = "desc";
         final String LIMIT_PARAMS = "limit";

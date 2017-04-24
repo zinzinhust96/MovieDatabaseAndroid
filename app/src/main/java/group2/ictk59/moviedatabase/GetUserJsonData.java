@@ -43,7 +43,7 @@ public class GetUserJsonData extends GetRawData {
     }
 
     public boolean createAndUpdateUri(String accessToken){
-        final String URL_FEED = "http://localhost:5000/api/user";
+        final String URL_FEED = Constants.BASE_URL + "/api/user";
         final String ACCESS_TOKEN = "access_token";
 
         mDestinationUri = Uri.parse(URL_FEED).buildUpon()

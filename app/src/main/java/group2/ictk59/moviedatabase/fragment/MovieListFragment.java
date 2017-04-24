@@ -114,7 +114,8 @@ public class MovieListFragment extends Fragment implements RecyclerViewClickList
         public class ProcessData extends GetMovieJsonData.DownloadJsonData {
             @Override
             protected void onPreExecute() {
-//                mProgressBar.setVisibility(View.VISIBLE);
+                mProgressBar.setVisibility(View.VISIBLE);
+                rvMovieList.setVisibility(View.GONE);
             }
 
             @Override
@@ -122,6 +123,7 @@ public class MovieListFragment extends Fragment implements RecyclerViewClickList
                 super.onPostExecute(webData);
                 mAdapter.loadNewData(getMovies());
                 mProgressBar.setVisibility(View.GONE);
+                rvMovieList.setVisibility(View.VISIBLE);
             }
 
             @Override

@@ -163,7 +163,7 @@ public class MainActivity extends AppCompatActivity
         final String refreshToken = app_preferences.getString(Constants.REFRESH_TOKEN, "");
         Log.d(Constants.REFRESH_TOKEN, refreshToken);
         Ion.with(getApplicationContext())
-                .load("GET", "http://localhost:5000/api/user/refresh_token?" + Constants.REFRESH_TOKEN + "=" + refreshToken)
+                .load("GET", Constants.BASE_URL + "/api/user/refresh_token?" + Constants.REFRESH_TOKEN + "=" + refreshToken)
                 .asString()
                 .setCallback(new FutureCallback<String>() {
                     @Override
@@ -174,9 +174,9 @@ public class MainActivity extends AppCompatActivity
                             if (status.equalsIgnoreCase(Constants.SUCCESS)){
                                 String accessToken = jsonObject.getString(Constants.NEW_ACCESS_TOKEN);
                                 RESTServiceApplication.getInstance().setAccessToken(accessToken);
-                                Log.d(Constants.TOKEN, "http://localhost:5000/api/user?" + Constants.ACCESS_TOKEN + "=" + accessToken);
+                                Log.d(Constants.TOKEN, Constants.BASE_URL + "/api/user?" + Constants.ACCESS_TOKEN + "=" + accessToken);
                                 Ion.with(getApplicationContext())
-                                        .load("GET", "http://localhost:5000/api/user?" + Constants.ACCESS_TOKEN + "=" + accessToken)
+                                        .load("GET", Constants.BASE_URL + "/api/user?" + Constants.ACCESS_TOKEN + "=" + accessToken)
                                         .asString()
                                         .setCallback(new FutureCallback<String>() {
                                             @Override
@@ -252,7 +252,7 @@ public class MainActivity extends AppCompatActivity
         if (v.getId() == R.id.ivAdd){
             if (RESTServiceApplication.getInstance().isLogin()){
                 Ion.with(this)
-                        .load("http://localhost:5000/api/user/action?" + Constants.ACCESS_TOKEN + "=" + RESTServiceApplication.getInstance().getAccessToken())
+                        .load(Constants.BASE_URL + "/api/user/action?" + Constants.ACCESS_TOKEN + "=" + RESTServiceApplication.getInstance().getAccessToken())
                         .setJsonObjectBody(object)
                         .asString()
                         .setCallback(new FutureCallback<String>() {
@@ -279,7 +279,7 @@ public class MainActivity extends AppCompatActivity
 
         }else if (v.getId() == R.id.ivRemove){
             Ion.with(this)
-                    .load("http://localhost:5000/api/user/action?" + Constants.ACCESS_TOKEN + "=" + RESTServiceApplication.getInstance().getAccessToken())
+                    .load(Constants.BASE_URL + "/api/user/action?" + Constants.ACCESS_TOKEN + "=" + RESTServiceApplication.getInstance().getAccessToken())
                     .setJsonObjectBody(object)
                     .asString()
                     .setCallback(new FutureCallback<String>() {

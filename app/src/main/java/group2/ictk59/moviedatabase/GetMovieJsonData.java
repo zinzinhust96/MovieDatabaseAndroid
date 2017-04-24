@@ -56,13 +56,13 @@ public class GetMovieJsonData extends GetRawData {
     }
 
     public boolean createAndUpdateUri(Long id){
-        final String URL_FEED = "http://localhost:5000/api/movies/" + id.toString();
+        final String URL_FEED = Constants.BASE_URL + "/api/movies/" + id.toString();
         mDestinationUri = Uri.parse(URL_FEED);
         return mDestinationUri != null;
     }
 
     public boolean createAndUpdateUri(String name){
-        final String URL_FEED = "http://localhost:5000/api/movies/search";
+        final String URL_FEED = Constants.BASE_URL + "/api/movies/search";
         final String NAME_PARAMS = "string";
 
         mDestinationUri = Uri.parse(URL_FEED).buildUpon()
@@ -73,7 +73,7 @@ public class GetMovieJsonData extends GetRawData {
     }
 
     public boolean createAndUpdateUri(String genre, String orderBy, boolean desc, String limit){
-        final String URL_FEED = "http://localhost:5000/api/movies";
+        final String URL_FEED = Constants.BASE_URL + "/api/movies";
         final String GENRE_PARAMS = "genre";
         final String ORDERBY_PARAMS = "orderby";
         final String DESC_PARAMS = "desc";

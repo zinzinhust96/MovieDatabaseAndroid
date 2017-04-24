@@ -77,7 +77,7 @@ public class LoginActivity extends BaseActivity {
                     user.addProperty(Constants.PASSWORD, password);
 
                     Ion.with(getApplicationContext())
-                            .load("http://localhost:5000/api/user")
+                            .load(Constants.BASE_URL + "/api/user")
                             .setJsonObjectBody(user)
                             .asString()
                             .setCallback(new FutureCallback<String>() {
@@ -100,7 +100,7 @@ public class LoginActivity extends BaseActivity {
                                             editor.apply();
 
                                             Ion.with(getApplicationContext())
-                                                    .load("GET", "http://localhost:5000/api/user?" + Constants.ACCESS_TOKEN + "=" + accessToken)
+                                                    .load("GET", Constants.BASE_URL + "/api/user?" + Constants.ACCESS_TOKEN + "=" + accessToken)
                                                     .asString()
                                                     .setCallback(new FutureCallback<String>() {
                                                         @Override
