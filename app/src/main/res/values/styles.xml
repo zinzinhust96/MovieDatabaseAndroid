@@ -31,6 +31,7 @@
         <item name="android:textColorSecondary">@color/primaryTextColor</item>
         <item name="android:background">@color/colorPrimary</item>
         <item name="android:textColorHint">@color/secondaryTextColor</item>
+        <item name="android:autoCompleteTextViewStyle">@style/AutoCompleteTextViewLight</item>
     </style>
 
     <style name="PopUpThemeOverlay" parent="">
@@ -56,8 +57,19 @@
         <item name="android:textColor">@color/primaryTextColor</item>
     </style>
 
+    <style name="RatingBar" parent="Theme.AppCompat.Light">
+        <item name="colorControlNormal">@color/bodyTextColor</item>
+        <item name="colorControlActivated">@color/colorPrimary</item>
+    </style>
+
+    <style name="AutoCompleteTextViewLight" parent="@android:style/Widget.AutoCompleteTextView">
+        <item name="android:textColor">@android:color/primary_text_light</item>
+
+    </style>
+
     <style name="Theme.IMDb.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar"/>
 
-    <style name="Theme.IMDb.PopupOverlay" parent="ThemeOverlay.AppCompat.Light"/>
+    <style name="Theme.IMDb.PopupOverlay" parent="ThemeOverlay.AppCompat.Light">
+    </style>
 
 </resources>

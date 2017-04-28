@@ -3,6 +3,7 @@ package group2.ictk59.moviedatabase;
 import android.app.Application;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -18,12 +19,14 @@ public class RESTServiceApplication extends Application {
     private String accessToken;
     private boolean isLogin;
     private List<Long> watchlistId;
+    private HashMap<Long, String> ratedMovies;
 
     @Override
     public void onCreate() {
         super.onCreate();
         instance = this;
         watchlistId = new ArrayList<>();
+        ratedMovies = new HashMap<>();
         isLogin = false;
     }
 
@@ -56,6 +59,14 @@ public class RESTServiceApplication extends Application {
 
     public void setWatchlistId(List<Long> watchlistId) {
         this.watchlistId = watchlistId;
+    }
+
+    public HashMap<Long, String> getRatedMovies() {
+        return ratedMovies;
+    }
+
+    public void setRatedMovies(HashMap<Long, String> ratedMovies) {
+        this.ratedMovies = ratedMovies;
     }
 
     public boolean isLogin() {

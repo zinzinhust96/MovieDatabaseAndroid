@@ -21,6 +21,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import group2.ictk59.moviedatabase.Constants;
 import group2.ictk59.moviedatabase.R;
@@ -102,6 +103,7 @@ public class RegisterActivity extends BaseActivity {
                                             RESTServiceApplication.getInstance().setUsername(username);
                                             RESTServiceApplication.getInstance().setAccessToken(accessToken);
                                             RESTServiceApplication.getInstance().setWatchlistId(new ArrayList<Long>());
+                                            RESTServiceApplication.getInstance().setRatedMovies(new HashMap<Long, String>());
                                             RESTServiceApplication.getInstance().setLogin(true);
 //                                            Log.i("LOG", jsonObject.getString("access_token"));
                                             SharedPreferences app_preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());

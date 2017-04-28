@@ -11,7 +11,6 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
@@ -25,11 +24,9 @@ import com.google.gson.JsonObject;
 import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Ion;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import group2.ictk59.moviedatabase.Constants;
@@ -46,7 +43,7 @@ import group2.ictk59.moviedatabase.fragment.OnItemSelectedListener;
 import group2.ictk59.moviedatabase.fragment.SearchResultFragment;
 import group2.ictk59.moviedatabase.fragment.WatchlistFragment;
 
-public class MainActivity extends AppCompatActivity
+public class MainActivity extends BaseActivity
         implements NavigationView.OnNavigationItemSelectedListener, OnItemSelectedListener {
 
     public static final String LOG_TAG = "Main Activity";
@@ -175,29 +172,7 @@ public class MainActivity extends AppCompatActivity
                                 String accessToken = jsonObject.getString(Constants.NEW_ACCESS_TOKEN);
                                 RESTServiceApplication.getInstance().setAccessToken(accessToken);
                                 Log.d(Constants.TOKEN, Constants.BASE_URL + "/api/user?" + Constants.ACCESS_TOKEN + "=" + accessToken);
-                                Ion.with(getApplicationContext())
-                                        .load("GET", Constants.BASE_URL + "/api/user?" + Constants.ACCESS_TOKEN + "=" + accessToken)
-                                        .asString()
-                                        .setCallback(new FutureCallback<String>() {
-                                            @Override
-                                            public void onCompleted(Exception e, String result) {
-                                                try {
-                                                    JSONArray jsonArray = new JSONObject(result).getJSONArray(Constants.DATA)
-                                                            .getJSONObject(0).getJSONObject(Constants.ATTRIBUTES)
-                                                            .getJSONObject(Constants.WATCHLIST).getJSONArray(Constants.DATA);
-                                                    List<Long> ids = new ArrayList<>();
-                                                    for (int i = 0; i < jsonArray.length(); i++){
-                                                        JSONObject jsonMovie = jsonArray.getJSONObject(i);
-                                                        Long id = jsonMovie.getLong(Constants.ID);
-                                                        Log.d(Constants.TOKEN, id.toString());
-                                                        ids.add(id);
-                                                    }
-                                                    RESTServiceApplication.getInstance().setWatchlistId(ids);
-                                                } catch (JSONException e1) {
-                                                    e1.printStackTrace();
-                                                }
-                                            }
-                                        });
+                                getRESTApplicationInfo(accessToken);
                             }
                         } catch (JSONException e1) {
                             e1.printStackTrace();

@@ -28,6 +28,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import group2.ictk59.moviedatabase.Constants;
@@ -49,7 +50,7 @@ public class MovieProfileFragment extends Fragment implements RecyclerViewClickL
     AdapterHorizontal mAdapter;
 
     ExpandableTextView etvPlot;
-    TextView tvTitleYear, tvGenre, tvRuntime, tvRating, tvVotes, tvAwards, tvCountry, tvReleased, tvDirector, tvWriter;
+    TextView tvTitleYear, tvGenre, tvRuntime, tvRating, tvVotes, tvAwards, tvCountry, tvReleased, tvDirector, tvWriter, tvYourRating;
     ImageView ivPoster;
     Button btAdd, btRemove;
     RecyclerView rvActorList;
@@ -106,6 +107,7 @@ public class MovieProfileFragment extends Fragment implements RecyclerViewClickL
         btAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                btAdd.setClickable(false);
                 if (RESTServiceApplication.getInstance().isLogin()){
                     final Long id = getArguments().getLong(Constants.ID);
 
@@ -146,6 +148,7 @@ public class MovieProfileFragment extends Fragment implements RecyclerViewClickL
         btRemove.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                btRemove.setClickable(false);
                 final Long id = getArguments().getLong(Constants.ID);
 
                 JsonObject object = new JsonObject();
@@ -178,10 +181,12 @@ public class MovieProfileFragment extends Fragment implements RecyclerViewClickL
             }
         });
 
+        tvYourRating = (TextView)view.findViewById(R.id.tvYourRating);
         ratingBar = (RatingBar)view.findViewById(R.id.ratingBar);
+        ratingBar.setIsIndicator(false);
     }
 
-    private void updateView(Movie movie){
+    private void updateView(final Movie movie){
         etvPlot.setText(movie.getPlot());
         tvTitleYear.setText(movie.getTitle() + " (" + movie.getYear() + ")");
         tvGenre.setText(movie.getGenre());
@@ -202,11 +207,74 @@ public class MovieProfileFragment extends Fragment implements RecyclerViewClickL
         topCasts = (List)movie.getTopCasts();
         mAdapter.loadNewData(topCasts);
 
-        ratingBar.setRating(3.5f);
+        //Rating bar update view
+        if (RESTServiceApplication.getInstance().isLogin()){
+            HashMap<Long, String> ratedMovies = RESTServiceApplication.getInstance().getRatedMovies();
+            if (ratedMovies != null){
+                if (ratedMovies.containsKey(movie.getId())){
+                    String rating = ratedMovies.get(movie.getId());
+                    tvYourRating.setText("Your rating: " + rating + "/10");
+                    ratingBar.setRating(Float.parseFloat(rating));
+                }
+            }
+        }
+
         ratingBar.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
             @Override
-            public void onRatingChanged(RatingBar ratingBar, float rating, boolean fromUser) {
-                Toast.makeText(getActivity(), String.valueOf(rating * 2), Toast.LENGTH_SHORT).show();
+            public void onRatingChanged(RatingBar ratingBar, final float rating, boolean fromUser) {
+                if (RESTServiceApplication.getInstance().isLogin()) {
+                    Toast.makeText(getActivity(), "Saving your rating...", Toast.LENGTH_SHORT).show();
+                    tvYourRating.setText("Your rating: " + rating + "/10");
+                    //add to hashmap<long, string> ratedMovies
+                    HashMap<Long, String> ratedMovies = RESTServiceApplication.getInstance().getRatedMovies();
+                    ratedMovies.put(movie.getId(), String.valueOf(rating));
+                    RESTServiceApplication.getInstance().setRatedMovies(ratedMovies);
+
+                    String accessToken = RESTServiceApplication.getInstance().getAccessToken();
+                    final JsonObject json = new JsonObject();
+                    json.addProperty(Constants.ACTION, Constants.RATE_MOVIE);
+                    json.addProperty(Constants.MOVIE_ID, movie.getId().toString());
+                    json.addProperty(Constants.RATING, String.valueOf(rating));
+                    Ion.with(getActivity())
+                            .load(Constants.BASE_URL + "/api/user/action?" + Constants.ACCESS_TOKEN + "=" + accessToken)
+                            .setJsonObjectBody(json)
+                            .asString()
+                            .setCallback(new FutureCallback<String>() {
+                                @Override
+                                public void onCompleted(Exception e, String result) {
+                                    try {
+                                        JSONObject jsonObject = new JSONObject(result);
+                                        String status = jsonObject.getString(Constants.STATUS);
+                                        Toast.makeText(getActivity(), jsonObject.getString(Constants.MESSAGE), Toast.LENGTH_SHORT).show();
+                                        if (status.equalsIgnoreCase(Constants.SUCCESS)){
+                                            Ion.with(getActivity())
+                                                    .load("GET", Constants.BASE_URL + "/api/movies/" + movie.getId())
+                                                    .asString()
+                                                    .setCallback(new FutureCallback<String>() {
+                                                        @Override
+                                                        public void onCompleted(Exception e, String result) {
+                                                            try {
+                                                                JSONObject jsonMovie = new JSONObject(result).getJSONArray(Constants.DATA)
+                                                                        .getJSONObject(0).getJSONObject(Constants.ATTRIBUTES);
+                                                                tvRating.setText(jsonMovie.getString(Constants.RATING));
+                                                                tvVotes.setText("(" + jsonMovie.getString(Constants.VOTES) + " votes)");
+                                                            } catch (JSONException e1) {
+                                                                e1.printStackTrace();
+                                                            }
+                                                        }
+                                                    });
+                                        }
+                                    } catch (JSONException e1) {
+                                        e1.printStackTrace();
+                                    } catch (NullPointerException e1){
+                                        e1.printStackTrace();
+                                    }
+                                }
+                            });
+                }else{
+                    Toast.makeText(getActivity(), R.string.login_alert, Toast.LENGTH_SHORT).show();
+                    startActivity(new Intent(getActivity(), LoginActivity.class));
+                }
             }
         });
     }
@@ -231,6 +299,8 @@ public class MovieProfileFragment extends Fragment implements RecyclerViewClickL
     private void showAddButton(boolean isShow){
         btAdd.setVisibility(isShow ? View.VISIBLE: View.GONE);
         btRemove.setVisibility(isShow ? View.GONE : View.VISIBLE);
+        btAdd.setClickable(isShow);
+        btRemove.setClickable(!isShow);
     }
 
     @Override

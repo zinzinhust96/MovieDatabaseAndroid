@@ -14,6 +14,7 @@
         <activity
             android:name=".activity.SearchActivity"
             android:label="@string/title_activity_search"
+            android:launchMode="singleTop"
             android:noHistory="true"
             android:theme="@style/Theme.IMDb">
             <intent-filter>
@@ -46,6 +47,8 @@
             android:label="@string/action_create_account"
             android:noHistory="true">
         </activity>
+        <provider android:name=".provider.MySuggestionProvider"
+                  android:authorities="group2.ictk59.moviedatabase.provider.MySuggestionProvider" />
     </application>
 
 </manifest>

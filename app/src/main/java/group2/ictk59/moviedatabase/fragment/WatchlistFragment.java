@@ -23,7 +23,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import group2.ictk59.moviedatabase.GetUserJsonData;
+import group2.ictk59.moviedatabase.GetUserWatchlistJsonData;
 import group2.ictk59.moviedatabase.R;
 import group2.ictk59.moviedatabase.RESTServiceApplication;
 import group2.ictk59.moviedatabase.activity.SearchActivity;
@@ -147,7 +147,7 @@ public class WatchlistFragment extends Fragment implements RecyclerViewClickList
         mCallback.onViewSelected(v, id);
     }
 
-    public class ProcessMovieList extends GetUserJsonData {
+    public class ProcessMovieList extends GetUserWatchlistJsonData {
         public ProcessMovieList(String accessToken) {
             super(accessToken);
         }

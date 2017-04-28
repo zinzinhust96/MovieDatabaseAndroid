@@ -29,5 +29,10 @@ public class Constants {
     public static final String TITLE = "title";
     public static final String YEAR = "year";
     public static final String RATING = "rating";
+    public static final String VOTES = "votes";
     public static final String CASTS = "casts";
+    public static final String RATED_MOVIES = "rated_movies";
+    public static final String MOVIE_ID = "movie_id";
+    public static final String ACTION = "action";
+    public static final String RATE_MOVIE = "rate_movie";
 }

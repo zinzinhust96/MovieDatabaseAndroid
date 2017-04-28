@@ -10,4 +10,10 @@
         app:actionViewClass="android.support.v7.widget.SearchView"
         app:showAsAction="always"/>
 
+    <item
+        android:id="@+id/clear_history"
+        android:icon="@android:drawable/ic_menu_delete"
+        app:showAsAction="ifRoom"
+        android:title="Clear History"/>
+
 </menu>

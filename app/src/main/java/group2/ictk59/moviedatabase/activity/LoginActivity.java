@@ -5,7 +5,6 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -17,12 +16,8 @@ import com.google.gson.JsonObject;
 import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Ion;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import group2.ictk59.moviedatabase.Constants;
 import group2.ictk59.moviedatabase.R;
@@ -99,29 +94,7 @@ public class LoginActivity extends BaseActivity {
                                             editor.putBoolean(Constants.ISLOGIN, true);
                                             editor.apply();
 
-                                            Ion.with(getApplicationContext())
-                                                    .load("GET", Constants.BASE_URL + "/api/user?" + Constants.ACCESS_TOKEN + "=" + accessToken)
-                                                    .asString()
-                                                    .setCallback(new FutureCallback<String>() {
-                                                        @Override
-                                                        public void onCompleted(Exception e, String result) {
-                                                            try {
-                                                                JSONArray jsonArray = new JSONObject(result).getJSONArray(Constants.DATA)
-                                                                        .getJSONObject(0).getJSONObject(Constants.ATTRIBUTES)
-                                                                        .getJSONObject(Constants.WATCHLIST).getJSONArray(Constants.DATA);
-                                                                List<Long> ids = new ArrayList<>();
-                                                                for (int i = 0; i < jsonArray.length(); i++){
-                                                                    JSONObject jsonMovie = jsonArray.getJSONObject(i);
-                                                                    Long id = jsonMovie.getLong(Constants.ID);
-                                                                    Log.d(Constants.TOKEN, id.toString());
-                                                                    ids.add(id);
-                                                                }
-                                                                RESTServiceApplication.getInstance().setWatchlistId(ids);
-                                                            } catch (JSONException e1) {
-                                                                e1.printStackTrace();
-                                                            }
-                                                        }
-                                                    });
+                                            getRESTApplicationInfo(accessToken);
 
                                             Toast.makeText(LoginActivity.this, "Hello " + username + "!", Toast.LENGTH_LONG).show();
                                             finish();

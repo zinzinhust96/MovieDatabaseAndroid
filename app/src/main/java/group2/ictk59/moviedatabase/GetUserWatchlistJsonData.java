@@ -16,9 +16,9 @@ import group2.ictk59.moviedatabase.model.Movie;
  * Created by ZinZin on 4/9/2017.
  */
 
-public class GetUserJsonData extends GetRawData {
+public class GetUserWatchlistJsonData extends GetRawData {
 
-    private String LOG_TAG = GetUserJsonData.class.getSimpleName();
+    private String LOG_TAG = GetUserWatchlistJsonData.class.getSimpleName();
     private List<Object> mMovies ;
     private Uri mDestinationUri;
 
@@ -30,7 +30,7 @@ public class GetUserJsonData extends GetRawData {
         return mDestinationUri;
     }
 
-    public GetUserJsonData(String accessToken) {
+    public GetUserWatchlistJsonData(String accessToken) {
         super(null);
         mMovies = new ArrayList<>();
         createAndUpdateUri(accessToken);
