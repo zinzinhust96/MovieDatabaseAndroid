@@ -135,10 +135,6 @@ public class LoginActivity extends BaseActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
-            case R.id.menu_search:
-                Intent intent = new Intent(this, SearchActivity.class);
-                startActivity(intent);
-                return true;
             case android.R.id.home:
                 finish();
                 return true;

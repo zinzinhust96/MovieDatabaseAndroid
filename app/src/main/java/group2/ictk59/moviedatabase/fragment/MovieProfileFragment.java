@@ -1,6 +1,7 @@
 package group2.ictk59.moviedatabase.fragment;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -55,6 +56,7 @@ public class MovieProfileFragment extends Fragment implements RecyclerViewClickL
     Button btAdd, btRemove;
     RecyclerView rvActorList;
     RatingBar ratingBar;
+    ProgressDialog progressDialog;
 
     private List topCasts;
     OnItemSelectedListener mCallback;
@@ -104,86 +106,71 @@ public class MovieProfileFragment extends Fragment implements RecyclerViewClickL
         mAdapter = new AdapterHorizontal(getActivity(), new ArrayList<>(), this);
         rvActorList.setAdapter(mAdapter);
 
+        final Long id = getArguments().getLong(Constants.ID);
         btAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                btAdd.setClickable(false);
-                if (RESTServiceApplication.getInstance().isLogin()){
-                    final Long id = getArguments().getLong(Constants.ID);
-
-                    JsonObject object = new JsonObject();
-                    object.addProperty("action", "modify_watchlist");
-                    object.addProperty("movie_id", id.toString());
-                    Ion.with(getActivity())
-                            .load(Constants.BASE_URL + "/api/user/action?" + Constants.ACCESS_TOKEN + "=" + RESTServiceApplication.getInstance().getAccessToken())
-                            .setJsonObjectBody(object)
-                            .asString()
-                            .setCallback(new FutureCallback<String>() {
-                                @Override
-                                public void onCompleted(Exception e, String result) {
-                                    try {
-                                        JSONObject jsonObject = new JSONObject(result);
-                                        String status = jsonObject.getString(Constants.STATUS);
-                                        if (status.equalsIgnoreCase(Constants.SUCCESS)){
-                                            //add to list<long> watchlistId
-                                            List<Long> watchlistId = RESTServiceApplication.getInstance().getWatchlistId();
-                                            watchlistId.add(id);
-                                            RESTServiceApplication.getInstance().setWatchlistId(watchlistId);
-
-                                            showAddButton(false);
-                                        }
-                                        Toast.makeText(getActivity(), jsonObject.getString(Constants.MESSAGE), Toast.LENGTH_SHORT).show();
-                                    } catch (JSONException e1) {
-                                        e1.printStackTrace();
-                                    }
-                                }
-                            });
-                }else{
-                    Toast.makeText(getActivity(), R.string.login_alert, Toast.LENGTH_SHORT).show();
-                    startActivity(new Intent(getActivity(), LoginActivity.class));
-                }
+                showAddButton(false);
+                Toast.makeText(getActivity(), "Added to watchlist!", Toast.LENGTH_SHORT).show();
+                mCallback.onViewAddSelected(id);
             }
         });
 
         btRemove.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                btRemove.setClickable(false);
-                final Long id = getArguments().getLong(Constants.ID);
-
-                JsonObject object = new JsonObject();
-                object.addProperty("action", "modify_watchlist");
-                object.addProperty("movie_id", id.toString());
-                Ion.with(getActivity())
-                        .load(Constants.BASE_URL + "/api/user/action?" + Constants.ACCESS_TOKEN + "=" + RESTServiceApplication.getInstance().getAccessToken())
-                        .setJsonObjectBody(object)
-                        .asString()
-                        .setCallback(new FutureCallback<String>() {
-                            @Override
-                            public void onCompleted(Exception e, String result) {
-                                try {
-                                    JSONObject jsonObject = new JSONObject(result);
-                                    String status = jsonObject.getString(Constants.STATUS);
-                                    if (status.equalsIgnoreCase(Constants.SUCCESS)){
-                                        //add to list<long> watchlistId
-                                        List<Long> watchlistId = RESTServiceApplication.getInstance().getWatchlistId();
-                                        watchlistId.remove(id);
-                                        RESTServiceApplication.getInstance().setWatchlistId(watchlistId);
-
-                                        showAddButton(true);
-                                    }
-                                    Toast.makeText(getActivity(), jsonObject.getString(Constants.MESSAGE), Toast.LENGTH_SHORT).show();
-                                } catch (JSONException e1) {
-                                    e1.printStackTrace();
-                                }
-                            }
-                        });
+                showAddButton(true);
+                mCallback.onViewRemoveSelected(id);
             }
         });
 
         tvYourRating = (TextView)view.findViewById(R.id.tvYourRating);
         ratingBar = (RatingBar)view.findViewById(R.id.ratingBar);
         ratingBar.setIsIndicator(false);
+        ratingBar.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
+            @Override
+            public void onRatingChanged(RatingBar ratingBar, final float rating, boolean fromUser) {
+                if (fromUser) {
+                    if (RESTServiceApplication.getInstance().isLogin()) {
+                        tvYourRating.setText("Your rating: " + rating + "/10");
+                        //add to hashmap<long, string> ratedMovies
+                        HashMap<Long, String> ratedMovies = RESTServiceApplication.getInstance().getRatedMovies();
+                        ratedMovies.put(id, String.valueOf(rating));
+                        RESTServiceApplication.getInstance().setRatedMovies(ratedMovies);
+
+                        String accessToken = RESTServiceApplication.getInstance().getAccessToken();
+                        final JsonObject json = new JsonObject();
+                        json.addProperty(Constants.ACTION, Constants.RATE_MOVIE);
+                        json.addProperty(Constants.MOVIE_ID, id.toString());
+                        json.addProperty(Constants.RATING, String.valueOf(rating));
+                        Ion.with(getActivity())
+                                .load(Constants.BASE_URL + "/api/user/action?" + Constants.ACCESS_TOKEN + "=" + accessToken)
+                                .setJsonObjectBody(json)
+                                .asString()
+                                .setCallback(new FutureCallback<String>() {
+                                    @Override
+                                    public void onCompleted(Exception e, String result) {
+                                        try {
+                                            JSONObject jsonObject = new JSONObject(result);
+                                            String status = jsonObject.getString(Constants.STATUS);
+                                            Toast.makeText(getActivity(), jsonObject.getString(Constants.MESSAGE), Toast.LENGTH_SHORT).show();
+                                            if (status.equalsIgnoreCase(Constants.SUCCESS)){
+                                                getAsyncMovie(id);
+                                            }
+                                        } catch (JSONException e1) {
+                                            e1.printStackTrace();
+                                        } catch (NullPointerException e1) {
+                                            e1.printStackTrace();
+                                        }
+                                    }
+                                });
+                    } else {
+                        Toast.makeText(getActivity(), R.string.login_alert, Toast.LENGTH_SHORT).show();
+                        startActivity(new Intent(getActivity(), LoginActivity.class));
+                    }
+                }
+            }
+        });
     }
 
     private void updateView(final Movie movie){
@@ -206,94 +193,36 @@ public class MovieProfileFragment extends Fragment implements RecyclerViewClickL
                 .into(ivPoster);
         topCasts = (List)movie.getTopCasts();
         mAdapter.loadNewData(topCasts);
-
-        //Rating bar update view
-        if (RESTServiceApplication.getInstance().isLogin()){
-            HashMap<Long, String> ratedMovies = RESTServiceApplication.getInstance().getRatedMovies();
-            if (ratedMovies != null){
-                if (ratedMovies.containsKey(movie.getId())){
-                    String rating = ratedMovies.get(movie.getId());
-                    tvYourRating.setText("Your rating: " + rating + "/10");
-                    ratingBar.setRating(Float.parseFloat(rating));
-                }
-            }
-        }
-
-        ratingBar.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
-            @Override
-            public void onRatingChanged(RatingBar ratingBar, final float rating, boolean fromUser) {
-                if (RESTServiceApplication.getInstance().isLogin()) {
-                    Toast.makeText(getActivity(), "Saving your rating...", Toast.LENGTH_SHORT).show();
-                    tvYourRating.setText("Your rating: " + rating + "/10");
-                    //add to hashmap<long, string> ratedMovies
-                    HashMap<Long, String> ratedMovies = RESTServiceApplication.getInstance().getRatedMovies();
-                    ratedMovies.put(movie.getId(), String.valueOf(rating));
-                    RESTServiceApplication.getInstance().setRatedMovies(ratedMovies);
-
-                    String accessToken = RESTServiceApplication.getInstance().getAccessToken();
-                    final JsonObject json = new JsonObject();
-                    json.addProperty(Constants.ACTION, Constants.RATE_MOVIE);
-                    json.addProperty(Constants.MOVIE_ID, movie.getId().toString());
-                    json.addProperty(Constants.RATING, String.valueOf(rating));
-                    Ion.with(getActivity())
-                            .load(Constants.BASE_URL + "/api/user/action?" + Constants.ACCESS_TOKEN + "=" + accessToken)
-                            .setJsonObjectBody(json)
-                            .asString()
-                            .setCallback(new FutureCallback<String>() {
-                                @Override
-                                public void onCompleted(Exception e, String result) {
-                                    try {
-                                        JSONObject jsonObject = new JSONObject(result);
-                                        String status = jsonObject.getString(Constants.STATUS);
-                                        Toast.makeText(getActivity(), jsonObject.getString(Constants.MESSAGE), Toast.LENGTH_SHORT).show();
-                                        if (status.equalsIgnoreCase(Constants.SUCCESS)){
-                                            Ion.with(getActivity())
-                                                    .load("GET", Constants.BASE_URL + "/api/movies/" + movie.getId())
-                                                    .asString()
-                                                    .setCallback(new FutureCallback<String>() {
-                                                        @Override
-                                                        public void onCompleted(Exception e, String result) {
-                                                            try {
-                                                                JSONObject jsonMovie = new JSONObject(result).getJSONArray(Constants.DATA)
-                                                                        .getJSONObject(0).getJSONObject(Constants.ATTRIBUTES);
-                                                                tvRating.setText(jsonMovie.getString(Constants.RATING));
-                                                                tvVotes.setText("(" + jsonMovie.getString(Constants.VOTES) + " votes)");
-                                                            } catch (JSONException e1) {
-                                                                e1.printStackTrace();
-                                                            }
-                                                        }
-                                                    });
-                                        }
-                                    } catch (JSONException e1) {
-                                        e1.printStackTrace();
-                                    } catch (NullPointerException e1){
-                                        e1.printStackTrace();
-                                    }
-                                }
-                            });
-                }else{
-                    Toast.makeText(getActivity(), R.string.login_alert, Toast.LENGTH_SHORT).show();
-                    startActivity(new Intent(getActivity(), LoginActivity.class));
-                }
-            }
-        });
     }
 
     @Override
     public void onResume() {
         super.onResume();
         Long id = getArguments().getLong(Constants.ID);
-        List<Long> watchlistId = RESTServiceApplication.getInstance().getWatchlistId();
         if (RESTServiceApplication.getInstance().isLogin()){
+            List<Long> watchlistId = RESTServiceApplication.getInstance().getWatchlistId();
             if (watchlistId != null){
                 if (watchlistId.contains(id)){
                     showAddButton(false);
                 }
             }
+            //Rating bar update view
+            HashMap<Long, String> ratedMovies = RESTServiceApplication.getInstance().getRatedMovies();
+            if (ratedMovies != null){
+                if (ratedMovies.containsKey(id)){
+                    String rating = ratedMovies.get(id);
+                    tvYourRating.setText("Your rating: " + rating + "/10");
+                    ratingBar.setRating(Float.parseFloat(rating));
+                }
+            }
         }
+        getAsyncMovie(id);
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle("Movie Profile");
+    }
+
+    private void getAsyncMovie(Long id){
         ProcessMovieList processMovieList = new ProcessMovieList(id);
         processMovieList.execute();
-        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle("Movie Profile");
     }
 
     private void showAddButton(boolean isShow){
@@ -327,7 +256,7 @@ public class MovieProfileFragment extends Fragment implements RecyclerViewClickL
         public class ProcessData extends GetMovieJsonData.DownloadJsonData {
             @Override
             protected void onPreExecute() {
-//                mProgressBar.setVisibility(View.VISIBLE);
+                progressDialog = ProgressDialog.show(getActivity(), "", "Retrieving latest data...", true);
             }
 
             @Override
@@ -336,6 +265,7 @@ public class MovieProfileFragment extends Fragment implements RecyclerViewClickL
                 List movies = getMovies();
                 Movie movie = (Movie)movies.get(0);
                 updateView(movie);
+                progressDialog.dismiss();
             }
 
             @Override

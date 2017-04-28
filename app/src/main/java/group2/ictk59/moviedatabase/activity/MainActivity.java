@@ -1,5 +1,7 @@
 package group2.ictk59.moviedatabase.activity;
 
+import android.app.SearchManager;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -9,8 +11,10 @@ import android.support.design.widget.NavigationView;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
@@ -48,7 +52,8 @@ public class MainActivity extends BaseActivity
 
     public static final String LOG_TAG = "Main Activity";
 
-    private String[] mMenuTitles;
+    private SearchView mSearchView;
+    private MenuItem searchItem;
 
     private ActionBarDrawerToggle toggle;
     private Toolbar toolbar;
@@ -62,8 +67,6 @@ public class MainActivity extends BaseActivity
         setContentView(R.layout.activity_main);
         toolbar = (Toolbar) findViewById(R.id.app_bar);
         setSupportActionBar(toolbar);
-
-        mMenuTitles = getResources().getStringArray(R.array.menu_array);
 
         drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         toggle = new ActionBarDrawerToggle(
@@ -122,18 +125,6 @@ public class MainActivity extends BaseActivity
         }else{
             showLogin(true);
             profilename.setText("Sign in to IMDb");
-        }
-
-        String query = app_preferences.getString(Constants.IMDB_QUERY, null);
-        if (query != null){
-            Toast.makeText(getApplicationContext(), query, Toast.LENGTH_SHORT).show();
-            FragmentManager fm = getSupportFragmentManager();
-            Bundle bundle = new Bundle();
-            bundle.putString(Constants.IMDB_QUERY, query);
-            app_preferences.edit().remove(Constants.IMDB_QUERY).apply();
-            SearchResultFragment searchResultFragment = new SearchResultFragment();
-            searchResultFragment.setArguments(bundle);
-            fm.beginTransaction().replace(R.id.content_frame, searchResultFragment).addToBackStack(null).commit();
         }
 
         //navigation item listener
@@ -220,39 +211,11 @@ public class MainActivity extends BaseActivity
     }
 
     @Override
-    public void onViewSelected(View v, final Long id) {
+    public void onViewAddSelected(final Long id) {
         JsonObject object = new JsonObject();
         object.addProperty("action", "modify_watchlist");
         object.addProperty("movie_id", id.toString());
-        if (v.getId() == R.id.ivAdd){
-            if (RESTServiceApplication.getInstance().isLogin()){
-                Ion.with(this)
-                        .load(Constants.BASE_URL + "/api/user/action?" + Constants.ACCESS_TOKEN + "=" + RESTServiceApplication.getInstance().getAccessToken())
-                        .setJsonObjectBody(object)
-                        .asString()
-                        .setCallback(new FutureCallback<String>() {
-                            @Override
-                            public void onCompleted(Exception e, String result) {
-                                try {
-                                    JSONObject jsonObject = new JSONObject(result);
-                                    String status = jsonObject.getString(Constants.STATUS);
-                                    if (status.equalsIgnoreCase(Constants.SUCCESS)){
-                                        //add to list<long> watchlistId
-                                        List<Long> watchlistId = RESTServiceApplication.getInstance().getWatchlistId();
-                                        watchlistId.add(id);
-                                        RESTServiceApplication.getInstance().setWatchlistId(watchlistId);
-                                    }
-                                } catch (JSONException e1) {
-                                    e1.printStackTrace();
-                                }
-                            }
-                        });
-            }else {
-                Toast.makeText(this, R.string.login_alert, Toast.LENGTH_SHORT).show();
-                startActivity(new Intent(this, LoginActivity.class));
-            }
-
-        }else if (v.getId() == R.id.ivRemove){
+        if (RESTServiceApplication.getInstance().isLogin()){
             Ion.with(this)
                     .load(Constants.BASE_URL + "/api/user/action?" + Constants.ACCESS_TOKEN + "=" + RESTServiceApplication.getInstance().getAccessToken())
                     .setJsonObjectBody(object)
@@ -266,7 +229,7 @@ public class MainActivity extends BaseActivity
                                 if (status.equalsIgnoreCase(Constants.SUCCESS)){
                                     //add to list<long> watchlistId
                                     List<Long> watchlistId = RESTServiceApplication.getInstance().getWatchlistId();
-                                    watchlistId.remove(id);
+                                    watchlistId.add(id);
                                     RESTServiceApplication.getInstance().setWatchlistId(watchlistId);
                                 }
                             } catch (JSONException e1) {
@@ -274,7 +237,38 @@ public class MainActivity extends BaseActivity
                             }
                         }
                     });
+        }else {
+            Toast.makeText(this, R.string.login_alert, Toast.LENGTH_SHORT).show();
+            startActivity(new Intent(this, LoginActivity.class));
         }
+    }
+
+    @Override
+    public void onViewRemoveSelected(final Long id) {
+        JsonObject object = new JsonObject();
+        object.addProperty("action", "modify_watchlist");
+        object.addProperty("movie_id", id.toString());
+        Ion.with(this)
+                .load(Constants.BASE_URL + "/api/user/action?" + Constants.ACCESS_TOKEN + "=" + RESTServiceApplication.getInstance().getAccessToken())
+                .setJsonObjectBody(object)
+                .asString()
+                .setCallback(new FutureCallback<String>() {
+                    @Override
+                    public void onCompleted(Exception e, String result) {
+                        try {
+                            JSONObject jsonObject = new JSONObject(result);
+                            String status = jsonObject.getString(Constants.STATUS);
+                            if (status.equalsIgnoreCase(Constants.SUCCESS)){
+                                //add to list<long> watchlistId
+                                List<Long> watchlistId = RESTServiceApplication.getInstance().getWatchlistId();
+                                watchlistId.remove(id);
+                                RESTServiceApplication.getInstance().setWatchlistId(watchlistId);
+                            }
+                        } catch (JSONException e1) {
+                            e1.printStackTrace();
+                        }
+                    }
+                });
     }
 
     @Override
@@ -323,6 +317,38 @@ public class MainActivity extends BaseActivity
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
+
+        searchItem = menu.findItem(R.id.menu_search);
+        mSearchView =
+                (SearchView) MenuItemCompat.getActionView(searchItem);
+        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        mSearchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+//        mSearchView.setIconified(false);
+        mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                Toast.makeText(getApplicationContext(), query, Toast.LENGTH_SHORT).show();
+                FragmentManager fm = getSupportFragmentManager();
+                Bundle bundle = new Bundle();
+                bundle.putString(Constants.IMDB_QUERY, query);
+                SearchResultFragment searchResultFragment = new SearchResultFragment();
+                searchResultFragment.setArguments(bundle);
+                fm.beginTransaction().replace(R.id.content_frame, searchResultFragment).addToBackStack(null).commit();
+//                mSearchView.clearFocus();
+                // anywhere you have a search item selected and are ready to close the search view...
+                // clear the search query in the toolbar so it is empty the next time the user
+                // opens the search view
+                mSearchView.setQuery("", false);  // 2nd argument is false so it doesn't re-submit a blank search query
+                // hide the SearchView action so the toolbar returns to normal mode showing the title and other menu items, etc.
+                searchItem.collapseActionView();
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                return true;
+            }
+        });
         return true;
     }
 
@@ -333,12 +359,6 @@ public class MainActivity extends BaseActivity
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.menu_search) {
-            Intent intent = new Intent(this, SearchActivity.class);
-            startActivity(intent);
-            return true;
-        }
         return super.onOptionsItemSelected(item);
     }
 

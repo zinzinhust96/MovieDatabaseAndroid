@@ -1,6 +1,7 @@
 package group2.ictk59.moviedatabase.fragment;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -48,6 +49,7 @@ public class ActorProfileFragment extends Fragment implements RecyclerViewClickL
     ImageView ivProfilePicture;
     RecyclerView rvMovieList;
     LinearLayout llDeathDay;
+    ProgressDialog progressDialog;
 
     private List knownFor;
 
@@ -168,7 +170,11 @@ public class ActorProfileFragment extends Fragment implements RecyclerViewClickL
     @Override
     public void onViewClicked(View v, int position) {
         final Long id = ((Movie)knownFor.get(position)).getId();
-        mCallback.onViewSelected(v, id);
+        if (v.getId() == R.id.ivAdd){
+            mCallback.onViewAddSelected(id);
+        }else if (v.getId() == R.id.ivRemove){
+            mCallback.onViewRemoveSelected(id);
+        }
     }
 
     public class ProcessActor extends GetActorJsonData {
@@ -184,7 +190,7 @@ public class ActorProfileFragment extends Fragment implements RecyclerViewClickL
         public class ProcessData extends DownloadJsonData {
             @Override
             protected void onPreExecute() {
-//                mProgressBar.setVisibility(View.VISIBLE);
+                progressDialog = ProgressDialog.show(getActivity(), "", "Retrieving latest data...", true);
             }
 
             @Override
@@ -193,6 +199,7 @@ public class ActorProfileFragment extends Fragment implements RecyclerViewClickL
                 List actors = getActors();
                 Actor actor = (Actor)actors.get(0);
                 updateView(actor);
+                progressDialog.dismiss();
             }
 
             @Override

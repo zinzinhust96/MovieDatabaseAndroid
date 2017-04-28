@@ -9,7 +9,8 @@ import android.view.View;
 public interface OnItemSelectedListener {
     public void onMovieSelected(Long id);
     public void onActorSelected(Long id);
-    public void onViewSelected(View v, Long id);
     public void toMovieListFragment(String orderBy, boolean desc);
     public void toActorListFragment(String orderBy, boolean desc);
+    public void onViewAddSelected(Long id);
+    public void onViewRemoveSelected(Long id);
 }

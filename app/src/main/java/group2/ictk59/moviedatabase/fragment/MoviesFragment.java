@@ -133,7 +133,11 @@ public class MoviesFragment extends BaseFragment implements RecyclerViewClickLis
     @Override
     public void onViewClicked(View v, int position) {
         final Long id = ((Movie)mAdapter.getListItem(position)).getId();
-        mCallback.onViewSelected(v, id);
+        if (v.getId() == R.id.ivAdd){
+            mCallback.onViewAddSelected(id);
+        }else if (v.getId() == R.id.ivRemove){
+            mCallback.onViewRemoveSelected(id);
+        }
     }
 
     public class ProcessMovieList extends GetMovieJsonData {

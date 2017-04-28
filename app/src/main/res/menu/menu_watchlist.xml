@@ -13,8 +13,8 @@
     <item android:id="@+id/menu_search"
           android:title="@string/search_title"
           android:icon="@android:drawable/ic_menu_search"
-          android:orderInCategory="99"
+          android:orderInCategory="600"
           app:showAsAction="collapseActionView|ifRoom"
-          android:actionViewClass="android.widget.SearchView" />
+          app:actionViewClass="android.support.v7.widget.SearchView" />
 
 </menu>

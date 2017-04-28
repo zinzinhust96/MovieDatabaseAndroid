@@ -108,7 +108,11 @@ public class SearchResultFragment extends BaseFragment implements RecyclerViewCl
         Object item = items.get(position);
         if (item instanceof Movie) {
             final Long id = ((Movie)item).getId();
-            mCallback.onViewSelected(v, id);
+            if (v.getId() == R.id.ivAdd){
+                mCallback.onViewAddSelected(id);
+            }else if (v.getId() == R.id.ivRemove){
+                mCallback.onViewRemoveSelected(id);
+            }
         }
     }
 
