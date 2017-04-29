@@ -7,6 +7,6 @@
     <color name="primaryTextColor">@color/md_black_1000</color>
     <color name="secondaryTextColor">@color/md_grey_500</color>
     <color name="bodyTextColor">@color/md_white_1000</color>
-    <color name="movieItemSeparator">@color/md_grey_300</color>
+    <color name="movieItemSeparator">@color/md_yellow_200</color>
     <color name="actorColor">#00A1F1</color>
 </resources>

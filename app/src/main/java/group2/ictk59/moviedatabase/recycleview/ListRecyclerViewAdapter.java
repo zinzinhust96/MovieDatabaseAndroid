@@ -160,12 +160,12 @@ public class ListRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.V
         return (null != items? items.get(position) : null);
     }
 
-    public class ActorViewHolder extends RecyclerView.ViewHolder {
-        protected ImageView ivProfilePicture;
-        protected TextView tvFullName;
-        protected TextView tvKnownFor;
+    private class ActorViewHolder extends RecyclerView.ViewHolder {
+        private ImageView ivProfilePicture;
+        private TextView tvFullName;
+        private TextView tvKnownFor;
 
-        public ActorViewHolder(View view) {
+        private ActorViewHolder(View view) {
             super(view);
             view.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -182,14 +182,14 @@ public class ListRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.V
         }
     }
 
-    public class MovieViewHolder extends RecyclerView.ViewHolder {
+    private class MovieViewHolder extends RecyclerView.ViewHolder {
 
-        protected ImageView ivPoster, ivAdd, ivRemove;
-        protected TextView tvTitleYear;
-        protected TextView tvCasts;
-        protected TextView tvRating;
+        private ImageView ivPoster, ivAdd, ivRemove;
+        private TextView tvTitleYear;
+        private TextView tvCasts;
+        private TextView tvRating;
 
-        public MovieViewHolder(View view) {
+        private MovieViewHolder(View view) {
             super(view);
             view.setOnClickListener(new View.OnClickListener() {
                 @Override

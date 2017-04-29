@@ -1,6 +1,7 @@
 package group2.ictk59.moviedatabase.recycleview;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,10 +20,10 @@ import group2.ictk59.moviedatabase.model.Actor;
 import group2.ictk59.moviedatabase.model.Movie;
 
 /**
- * Created by ZinZin on 3/29/2017.
+ * Created by ZinZin on 4/28/2017.
  */
 
-public class ComplexRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+public class RatedMovieListRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     // The items to display in your RecyclerView
     private List<Object> items;
@@ -33,7 +34,7 @@ public class ComplexRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVie
     private Context mContext;
     private RecyclerViewClickListener mListener;
 
-    public ComplexRecyclerViewAdapter(Context context, List<Object> items, RecyclerViewClickListener listener) {
+    public RatedMovieListRecyclerViewAdapter(Context context, List<Object> items, RecyclerViewClickListener listener) {
         this.items = items;
         mContext = context;
         mListener = listener;
@@ -71,7 +72,7 @@ public class ComplexRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVie
 
         switch (viewType) {
             case MOVIE:
-                View v1 = inflater.inflate(R.layout.movie_item, viewGroup, false);
+                View v1 = inflater.inflate(R.layout.rated_movie_item, viewGroup, false);
                 viewHolder = new MovieViewHolder(v1);
                 break;
             case ACTOR:
@@ -114,7 +115,14 @@ public class ComplexRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVie
                     .into(holder.ivPoster);
 
             holder.tvTitleYear.setText(movie.getTitle() + " (" + movie.getYear() + ")");
-            holder.tvCasts.setText(movie.getCasts());
+            float rating = Float.parseFloat(movie.getRating());
+            if (rating > 7){
+                holder.tvRating.setBackgroundColor(Color.GREEN);
+            }else if (rating <= 7 && rating >= 4){
+                holder.tvRating.setBackgroundColor(Color.YELLOW);
+            }else{
+                holder.tvRating.setBackgroundColor(Color.RED);
+            }
             holder.tvRating.setText(movie.getRating());
             if (RESTServiceApplication.getInstance().isLogin()){
                 List<Long> watchlistIds = RESTServiceApplication.getInstance().getWatchlistId();
@@ -186,7 +194,6 @@ public class ComplexRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVie
 
         private ImageView ivPoster, ivAdd, ivRemove;
         private TextView tvTitleYear;
-        private TextView tvCasts;
         private TextView tvRating;
 
         private MovieViewHolder(View view) {
@@ -204,7 +211,6 @@ public class ComplexRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVie
             ivAdd = (ImageView)view.findViewById(R.id.ivAdd);
             ivRemove = (ImageView)view.findViewById(R.id.ivRemove);
             tvTitleYear = (TextView) view.findViewById(R.id.tvTitleYear);
-            tvCasts = (TextView) view.findViewById(R.id.tvCasts);
             tvRating = (TextView)view.findViewById(R.id.tvRating);
             ivAdd.setOnClickListener(new View.OnClickListener() {
                 @Override

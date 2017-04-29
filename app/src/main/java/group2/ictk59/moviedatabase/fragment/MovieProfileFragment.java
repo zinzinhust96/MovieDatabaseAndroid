@@ -4,7 +4,9 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
@@ -60,6 +62,7 @@ public class MovieProfileFragment extends Fragment implements RecyclerViewClickL
 
     private List topCasts;
     OnItemSelectedListener mCallback;
+    private Long id;
 
     @Override
     public void onAttach(Context context) {
@@ -84,29 +87,29 @@ public class MovieProfileFragment extends Fragment implements RecyclerViewClickL
         return rootView;
     }
 
-    private void setUpView(View view){
-        etvPlot = (ExpandableTextView)view.findViewById(R.id.expand_text_view);
-        tvTitleYear = (TextView)view.findViewById(R.id.tvTitleYear);
-        tvGenre = (TextView)view.findViewById(R.id.tvGenre);
-        tvRuntime = (TextView)view.findViewById(R.id.tvRuntime);
-        tvRating = (TextView)view.findViewById(R.id.tvRating);
-        tvVotes = (TextView)view.findViewById(R.id.tvVotes);
-        tvAwards = (TextView)view.findViewById(R.id.tvAwards);
-        tvCountry = (TextView)view.findViewById(R.id.tvCountry);
-        tvReleased = (TextView)view.findViewById(R.id.tvReleased);
-        tvDirector = (TextView)view.findViewById(R.id.tvDirector);
-        tvWriter = (TextView)view.findViewById(R.id.tvWriter);
-        ivPoster = (ImageView)view.findViewById(R.id.ivPoster);
-        btAdd = (Button)view.findViewById(R.id.btAdd);
-        btRemove = (Button)view.findViewById(R.id.btRemove);
-        rvActorList = (RecyclerView)view.findViewById(R.id.rvActorList);
+    private void setUpView(View view) {
+        etvPlot = (ExpandableTextView) view.findViewById(R.id.expand_text_view);
+        tvTitleYear = (TextView) view.findViewById(R.id.tvTitleYear);
+        tvGenre = (TextView) view.findViewById(R.id.tvGenre);
+        tvRuntime = (TextView) view.findViewById(R.id.tvRuntime);
+        tvRating = (TextView) view.findViewById(R.id.tvRating);
+        tvVotes = (TextView) view.findViewById(R.id.tvVotes);
+        tvAwards = (TextView) view.findViewById(R.id.tvAwards);
+        tvCountry = (TextView) view.findViewById(R.id.tvCountry);
+        tvReleased = (TextView) view.findViewById(R.id.tvReleased);
+        tvDirector = (TextView) view.findViewById(R.id.tvDirector);
+        tvWriter = (TextView) view.findViewById(R.id.tvWriter);
+        ivPoster = (ImageView) view.findViewById(R.id.ivPoster);
+        btAdd = (Button) view.findViewById(R.id.btAdd);
+        btRemove = (Button) view.findViewById(R.id.btRemove);
+        rvActorList = (RecyclerView) view.findViewById(R.id.rvActorList);
         LinearLayoutManager layoutManager =
                 new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false);
         rvActorList.setLayoutManager(layoutManager);
         mAdapter = new AdapterHorizontal(getActivity(), new ArrayList<>(), this);
         rvActorList.setAdapter(mAdapter);
 
-        final Long id = getArguments().getLong(Constants.ID);
+        id = getArguments().getLong(Constants.ID);
         btAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -124,8 +127,8 @@ public class MovieProfileFragment extends Fragment implements RecyclerViewClickL
             }
         });
 
-        tvYourRating = (TextView)view.findViewById(R.id.tvYourRating);
-        ratingBar = (RatingBar)view.findViewById(R.id.ratingBar);
+        tvYourRating = (TextView) view.findViewById(R.id.tvYourRating);
+        ratingBar = (RatingBar) view.findViewById(R.id.ratingBar);
         ratingBar.setIsIndicator(false);
         ratingBar.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
             @Override
@@ -133,37 +136,8 @@ public class MovieProfileFragment extends Fragment implements RecyclerViewClickL
                 if (fromUser) {
                     if (RESTServiceApplication.getInstance().isLogin()) {
                         tvYourRating.setText("Your rating: " + rating + "/10");
-                        //add to hashmap<long, string> ratedMovies
-                        HashMap<Long, String> ratedMovies = RESTServiceApplication.getInstance().getRatedMovies();
-                        ratedMovies.put(id, String.valueOf(rating));
-                        RESTServiceApplication.getInstance().setRatedMovies(ratedMovies);
-
-                        String accessToken = RESTServiceApplication.getInstance().getAccessToken();
-                        final JsonObject json = new JsonObject();
-                        json.addProperty(Constants.ACTION, Constants.RATE_MOVIE);
-                        json.addProperty(Constants.MOVIE_ID, id.toString());
-                        json.addProperty(Constants.RATING, String.valueOf(rating));
-                        Ion.with(getActivity())
-                                .load(Constants.BASE_URL + "/api/user/action?" + Constants.ACCESS_TOKEN + "=" + accessToken)
-                                .setJsonObjectBody(json)
-                                .asString()
-                                .setCallback(new FutureCallback<String>() {
-                                    @Override
-                                    public void onCompleted(Exception e, String result) {
-                                        try {
-                                            JSONObject jsonObject = new JSONObject(result);
-                                            String status = jsonObject.getString(Constants.STATUS);
-                                            Toast.makeText(getActivity(), jsonObject.getString(Constants.MESSAGE), Toast.LENGTH_SHORT).show();
-                                            if (status.equalsIgnoreCase(Constants.SUCCESS)){
-                                                getAsyncMovie(id);
-                                            }
-                                        } catch (JSONException e1) {
-                                            e1.printStackTrace();
-                                        } catch (NullPointerException e1) {
-                                            e1.printStackTrace();
-                                        }
-                                    }
-                                });
+                        UpdateAfterRate updateAfterRate = new UpdateAfterRate();
+                        updateAfterRate.execute(rating);
                     } else {
                         Toast.makeText(getActivity(), R.string.login_alert, Toast.LENGTH_SHORT).show();
                         startActivity(new Intent(getActivity(), LoginActivity.class));
@@ -173,7 +147,7 @@ public class MovieProfileFragment extends Fragment implements RecyclerViewClickL
         });
     }
 
-    private void updateView(final Movie movie){
+    private void updateView(final Movie movie) {
         etvPlot.setText(movie.getPlot());
         tvTitleYear.setText(movie.getTitle() + " (" + movie.getYear() + ")");
         tvGenre.setText(movie.getGenre());
@@ -191,42 +165,49 @@ public class MovieProfileFragment extends Fragment implements RecyclerViewClickL
                 .error(R.drawable.placeholder)
                 .placeholder(R.drawable.placeholder)
                 .into(ivPoster);
-        topCasts = (List)movie.getTopCasts();
+        topCasts = (List) movie.getTopCasts();
         mAdapter.loadNewData(topCasts);
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        Long id = getArguments().getLong(Constants.ID);
-        if (RESTServiceApplication.getInstance().isLogin()){
-            List<Long> watchlistId = RESTServiceApplication.getInstance().getWatchlistId();
-            if (watchlistId != null){
-                if (watchlistId.contains(id)){
-                    showAddButton(false);
-                }
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                SystemClock.sleep(1000);
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Long id = getArguments().getLong(Constants.ID);
+                        if (RESTServiceApplication.getInstance().isLogin()) {
+                            List<Long> watchlistId = RESTServiceApplication.getInstance().getWatchlistId();
+                            if (watchlistId != null) {
+                                if (watchlistId.contains(id)) {
+                                    showAddButton(false);
+                                }
+                            }
+                            //Rating bar update view
+                            HashMap<Long, String> ratedMovies = RESTServiceApplication.getInstance().getRatedMovies();
+                            if (ratedMovies != null) {
+                                if (ratedMovies.containsKey(id)) {
+                                    String rating = ratedMovies.get(id);
+                                    tvYourRating.setText("Your rating: " + rating + "/10");
+                                    ratingBar.setRating(Float.parseFloat(rating));
+                                }
+                            }
+                        }
+                    }
+                });
             }
-            //Rating bar update view
-            HashMap<Long, String> ratedMovies = RESTServiceApplication.getInstance().getRatedMovies();
-            if (ratedMovies != null){
-                if (ratedMovies.containsKey(id)){
-                    String rating = ratedMovies.get(id);
-                    tvYourRating.setText("Your rating: " + rating + "/10");
-                    ratingBar.setRating(Float.parseFloat(rating));
-                }
-            }
-        }
-        getAsyncMovie(id);
+        }).start();
+        ProcessMovieList processMovieList = new ProcessMovieList(id);
+        processMovieList.execute();
         ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle("Movie Profile");
     }
 
-    private void getAsyncMovie(Long id){
-        ProcessMovieList processMovieList = new ProcessMovieList(id);
-        processMovieList.execute();
-    }
-
-    private void showAddButton(boolean isShow){
-        btAdd.setVisibility(isShow ? View.VISIBLE: View.GONE);
+    private void showAddButton(boolean isShow) {
+        btAdd.setVisibility(isShow ? View.VISIBLE : View.GONE);
         btRemove.setVisibility(isShow ? View.GONE : View.VISIBLE);
         btAdd.setClickable(isShow);
         btRemove.setClickable(!isShow);
@@ -234,7 +215,7 @@ public class MovieProfileFragment extends Fragment implements RecyclerViewClickL
 
     @Override
     public void onRowClicked(int position) {
-        Long id = ((Actor)topCasts.get(position)).getId();
+        Long id = ((Actor) topCasts.get(position)).getId();
         mCallback.onActorSelected(id);
     }
 
@@ -243,8 +224,8 @@ public class MovieProfileFragment extends Fragment implements RecyclerViewClickL
 
     }
 
-    public class ProcessMovieList extends GetMovieJsonData {
-        public ProcessMovieList(Long id) {
+    private class ProcessMovieList extends GetMovieJsonData {
+        private ProcessMovieList(Long id) {
             super(id);
         }
 
@@ -253,7 +234,7 @@ public class MovieProfileFragment extends Fragment implements RecyclerViewClickL
             processData.execute();
         }
 
-        public class ProcessData extends GetMovieJsonData.DownloadJsonData {
+        private class ProcessData extends DownloadJsonData {
             @Override
             protected void onPreExecute() {
                 progressDialog = ProgressDialog.show(getActivity(), "", "Retrieving latest data...", true);
@@ -263,7 +244,7 @@ public class MovieProfileFragment extends Fragment implements RecyclerViewClickL
             protected void onPostExecute(String webData) {
                 super.onPostExecute(webData);
                 List movies = getMovies();
-                Movie movie = (Movie)movies.get(0);
+                Movie movie = (Movie) movies.get(0);
                 updateView(movie);
                 progressDialog.dismiss();
             }
@@ -272,6 +253,55 @@ public class MovieProfileFragment extends Fragment implements RecyclerViewClickL
             protected String doInBackground(String... strings) {
                 return super.doInBackground(strings);
             }
+        }
+    }
+
+    private class UpdateAfterRate extends AsyncTask<Float, Void, Long> {
+        @Override
+        protected void onPreExecute() {
+        }
+
+        @Override
+        protected Long doInBackground(Float... params) {
+            Float rating = params[0];
+            //add to hashmap<long, string> ratedMovies
+            HashMap<Long, String> ratedMovies = RESTServiceApplication.getInstance().getRatedMovies();
+            ratedMovies.put(id, String.valueOf(rating));
+            RESTServiceApplication.getInstance().setRatedMovies(ratedMovies);
+
+            String accessToken = RESTServiceApplication.getInstance().getAccessToken();
+            final JsonObject json = new JsonObject();
+            json.addProperty(Constants.ACTION, Constants.RATE_MOVIE);
+            json.addProperty(Constants.MOVIE_ID, id.toString());
+            json.addProperty(Constants.RATING, String.valueOf(rating));
+            Ion.with(getActivity())
+                    .load(Constants.BASE_URL + "/api/user/action?" + Constants.ACCESS_TOKEN + "=" + accessToken)
+                    .setJsonObjectBody(json)
+                    .asString()
+                    .setCallback(new FutureCallback<String>() {
+                        @Override
+                        public void onCompleted(Exception e, String result) {
+                            try {
+                                JSONObject jsonObject = new JSONObject(result);
+                                String status = jsonObject.getString(Constants.STATUS);
+                                Toast.makeText(getActivity(), jsonObject.getString(Constants.MESSAGE), Toast.LENGTH_SHORT).show();
+                                if (status.equalsIgnoreCase(Constants.SUCCESS)) {
+                                    return;
+                                }
+                            } catch (JSONException e1) {
+                                e1.printStackTrace();
+                            } catch (NullPointerException e1) {
+                                e1.printStackTrace();
+                            }
+                        }
+                    });
+            return id;
+        }
+
+        @Override
+        protected void onPostExecute(Long id) {
+            ProcessMovieList processMovieList = new ProcessMovieList(id);
+            processMovieList.execute();
         }
     }
 }

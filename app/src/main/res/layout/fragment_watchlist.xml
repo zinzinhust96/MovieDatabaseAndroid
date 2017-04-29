@@ -25,6 +25,6 @@
         android:layout_below="@id/app_bar"
         android:visibility="gone"
         android:textSize="20sp"
-        android:text="No movie was found in your watchlist. Navigate to movies section to add some"/>
+        android:text="No movie was found in your list. Navigate to movies section to add some"/>
 
 </FrameLayout>

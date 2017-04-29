@@ -1,12 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
       xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <item android:id="@+id/menu_sort_rating"
-          android:title="Sort by rating"
+    <item android:id="@+id/menu_most_recent"
+          android:title="Most Recent"
           app:showAsAction="never"/>
 
-    <item android:id="@+id/menu_sort_year"
-          android:title="Sort by year"
+    <item android:id="@+id/menu_top_rated"
+          android:title="Top Rated"
           app:showAsAction="never"/>
 
     <item android:id="@+id/menu_search"

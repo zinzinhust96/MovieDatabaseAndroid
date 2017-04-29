@@ -44,6 +44,7 @@ import group2.ictk59.moviedatabase.fragment.MovieListFragment;
 import group2.ictk59.moviedatabase.fragment.MovieProfileFragment;
 import group2.ictk59.moviedatabase.fragment.MoviesFragment;
 import group2.ictk59.moviedatabase.fragment.OnItemSelectedListener;
+import group2.ictk59.moviedatabase.fragment.RatingListFragment;
 import group2.ictk59.moviedatabase.fragment.SearchResultFragment;
 import group2.ictk59.moviedatabase.fragment.WatchlistFragment;
 
@@ -385,7 +386,15 @@ public class MainActivity extends BaseActivity
                 fm.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
                 fm.beginTransaction().replace(R.id.content_frame, new WatchlistFragment()).commit();
             }
-        } else if (id == R.id.nav_login) {
+        }else if (id == R.id.nav_rating) {
+            if (!RESTServiceApplication.getInstance().isLogin()){
+                startActivity(new Intent(MainActivity.this, LoginActivity.class));
+            }else{
+                navigationView.setCheckedItem(R.id.nav_none);
+                fm.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+                fm.beginTransaction().replace(R.id.content_frame, new RatingListFragment()).commit();
+            }
+        }else if (id == R.id.nav_login) {
             startActivity(new Intent(MainActivity.this, LoginActivity.class));
         } else if (id == R.id.nav_logout) {
             RESTServiceApplication.getInstance().setLogin(false);

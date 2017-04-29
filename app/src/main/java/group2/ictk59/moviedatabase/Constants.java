@@ -35,4 +35,5 @@ public class Constants {
     public static final String MOVIE_ID = "movie_id";
     public static final String ACTION = "action";
     public static final String RATE_MOVIE = "rate_movie";
+    public static final String MOVIE = "movie";
 }
