@@ -33,5 +33,6 @@ dependencies {
     compile 'com.ms-square:expandableTextView:0.1.4'
     compile 'joda-time:joda-time:2.9.9'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
+    compile 'org.jsoup:jsoup:1.10.2'
     testCompile 'junit:junit:4.12'
 }
