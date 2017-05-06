@@ -1,9 +1,9 @@
 package group2.ictk59.moviedatabase;
 
 import android.app.Application;
+import android.support.v4.util.LongSparseArray;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -19,14 +19,14 @@ public class RESTServiceApplication extends Application {
     private String accessToken;
     private boolean isLogin;
     private List<Long> watchlistId;
-    private HashMap<Long, String> ratedMovies;
+    private LongSparseArray<String> ratedMovies;
 
     @Override
     public void onCreate() {
         super.onCreate();
         instance = this;
         watchlistId = new ArrayList<>();
-        ratedMovies = new HashMap<>();
+        ratedMovies = new LongSparseArray<>();
         isLogin = false;
     }
 
@@ -61,11 +61,11 @@ public class RESTServiceApplication extends Application {
         this.watchlistId = watchlistId;
     }
 
-    public HashMap<Long, String> getRatedMovies() {
+    public LongSparseArray<String> getRatedMovies() {
         return ratedMovies;
     }
 
-    public void setRatedMovies(HashMap<Long, String> ratedMovies) {
+    public void setRatedMovies(LongSparseArray<String> ratedMovies) {
         this.ratedMovies = ratedMovies;
     }
 

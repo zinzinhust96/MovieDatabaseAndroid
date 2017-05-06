@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.util.LongSparseArray;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -31,7 +32,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import group2.ictk59.moviedatabase.Constants;
@@ -175,7 +175,7 @@ public class MovieProfileFragment extends Fragment implements RecyclerViewClickL
         new Thread(new Runnable() {
             @Override
             public void run() {
-                SystemClock.sleep(1000);
+                SystemClock.sleep(500);
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -188,9 +188,9 @@ public class MovieProfileFragment extends Fragment implements RecyclerViewClickL
                                 }
                             }
                             //Rating bar update view
-                            HashMap<Long, String> ratedMovies = RESTServiceApplication.getInstance().getRatedMovies();
+                            LongSparseArray<String> ratedMovies = RESTServiceApplication.getInstance().getRatedMovies();
                             if (ratedMovies != null) {
-                                if (ratedMovies.containsKey(id)) {
+                                if (ratedMovies.get(id) != null) {
                                     String rating = ratedMovies.get(id);
                                     tvYourRating.setText("Your rating: " + rating + "/10");
                                     ratingBar.setRating(Float.parseFloat(rating));
@@ -265,7 +265,7 @@ public class MovieProfileFragment extends Fragment implements RecyclerViewClickL
         protected Long doInBackground(Float... params) {
             Float rating = params[0];
             //add to hashmap<long, string> ratedMovies
-            HashMap<Long, String> ratedMovies = RESTServiceApplication.getInstance().getRatedMovies();
+            LongSparseArray<String> ratedMovies = RESTServiceApplication.getInstance().getRatedMovies();
             ratedMovies.put(id, String.valueOf(rating));
             RESTServiceApplication.getInstance().setRatedMovies(ratedMovies);
 

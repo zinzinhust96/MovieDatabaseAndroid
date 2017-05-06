@@ -1,5 +1,6 @@
 package group2.ictk59.moviedatabase.activity;
 
+import android.support.v4.util.LongSparseArray;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -12,7 +13,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import group2.ictk59.moviedatabase.Constants;
@@ -69,7 +69,7 @@ public abstract class BaseActivity extends AppCompatActivity {
 
                             JSONArray jsonRatedMovies = jsonAttribute.getJSONObject(Constants.RATED_MOVIES)
                                     .getJSONArray(Constants.DATA);
-                            HashMap<Long, String> ratedMovies = new HashMap<>();
+                            LongSparseArray<String> ratedMovies = new LongSparseArray<String>();
                             for (int i = 0; i < jsonRatedMovies.length(); i++){
                                 JSONObject jsonRatedMoviesAtt = jsonRatedMovies.getJSONObject(i)
                                         .getJSONObject(Constants.ATTRIBUTES);

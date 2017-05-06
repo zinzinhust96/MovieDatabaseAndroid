@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.util.LongSparseArray;
 import android.text.TextUtils;
 import android.util.Patterns;
 import android.view.Menu;
@@ -21,7 +22,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import group2.ictk59.moviedatabase.Constants;
 import group2.ictk59.moviedatabase.R;
@@ -103,7 +103,7 @@ public class RegisterActivity extends BaseActivity {
                                             RESTServiceApplication.getInstance().setUsername(username);
                                             RESTServiceApplication.getInstance().setAccessToken(accessToken);
                                             RESTServiceApplication.getInstance().setWatchlistId(new ArrayList<Long>());
-                                            RESTServiceApplication.getInstance().setRatedMovies(new HashMap<Long, String>());
+                                            RESTServiceApplication.getInstance().setRatedMovies(new LongSparseArray<String>());
                                             RESTServiceApplication.getInstance().setLogin(true);
 //                                            Log.i("LOG", jsonObject.getString("access_token"));
                                             SharedPreferences app_preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());

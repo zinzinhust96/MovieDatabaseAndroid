@@ -5,7 +5,7 @@ package group2.ictk59.moviedatabase;
  */
 
 public class Constants {
-    public static final String BASE_URL = "http://localhost:5000";
+    public static final String BASE_URL = "https://ictmdb.herokuapp.com";
     public static final String IMDB_QUERY = "IMDb_QUERY";
 
     public static final String ISLOGIN = "isLogIn";
