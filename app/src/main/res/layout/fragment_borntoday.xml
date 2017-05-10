@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:orientation="vertical">
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
 
     <LinearLayout
         android:id="@+id/datePickerLayout"
@@ -29,14 +28,33 @@
     </LinearLayout>
 
     <View
+        android:id="@+id/separator"
+        android:layout_below="@id/datePickerLayout"
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:background="@color/movieItemSeparator"/>
 
     <view
+        android:layout_below="@id/separator"
         android:id="@+id/rvActorList"
         class="android.support.v7.widget.RecyclerView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 
-</LinearLayout>
+    <ProgressBar
+        android:id="@+id/progress_bar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:layout_below="@id/datePickerLayout"/>
+
+    <TextView
+        android:layout_margin="10dp"
+        android:id="@+id/tvNoResults"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:layout_below="@id/datePickerLayout"
+        android:text="No results"/>
+
+</RelativeLayout>

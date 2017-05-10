@@ -102,7 +102,7 @@ public class ActorProfileFragment extends Fragment implements RecyclerViewClickL
         tvFullName.setText(actor.getName());
         tvPopularity.setText(String.format(Locale.US, "%f", actor.getPopularity()));
 
-        DateFormat fromData = new SimpleDateFormat("yyyy-MM-dd");
+        DateFormat fromData = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
         DateFormat myFormat = new SimpleDateFormat("MMMM dd, yyyy", Locale.US);
         try {
             Date birthday = fromData.parse(actor.getBirthday());

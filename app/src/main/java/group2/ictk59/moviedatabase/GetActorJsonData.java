@@ -37,10 +37,10 @@ public class GetActorJsonData extends GetRawData {
         createAndUpdateUri(id);
     }
 
-    public GetActorJsonData(String name) {
+    public GetActorJsonData(String name, boolean isBornToday) {
         super(null);
         mActors = new ArrayList<>();
-        createAndUpdateUri(name);
+        createAndUpdateUri(name, isBornToday);
     }
 
     public GetActorJsonData(String orderBy, boolean desc, String limit){
@@ -61,14 +61,24 @@ public class GetActorJsonData extends GetRawData {
         return mDestinationUri != null;
     }
 
-    public boolean createAndUpdateUri(String name){
-        final String URL_FEED = Constants.BASE_URL + "/api/actors/search";
-        final String NAME_PARAMS = "string";
+    public boolean createAndUpdateUri(String s, boolean isBornToday){
+        if (isBornToday){
+            final String URL_FEED = Constants.BASE_URL + "/api/actors";
+            final String BIRTHDAY_PARAMS = "birthday";
 
-        mDestinationUri = Uri.parse(URL_FEED).buildUpon()
-                .appendQueryParameter(NAME_PARAMS, name)
-                .build();
+            mDestinationUri = Uri.parse(URL_FEED).buildUpon()
+                    .appendQueryParameter(BIRTHDAY_PARAMS, s)
+                    .build();
 
+        }else{
+            final String URL_FEED = Constants.BASE_URL + "/api/actors/search";
+            final String NAME_PARAMS = "string";
+
+            mDestinationUri = Uri.parse(URL_FEED).buildUpon()
+                    .appendQueryParameter(NAME_PARAMS, s)
+                    .build();
+
+        }
         return mDestinationUri != null;
     }
 

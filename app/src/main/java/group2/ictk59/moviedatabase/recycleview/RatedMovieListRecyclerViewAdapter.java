@@ -12,7 +12,13 @@ import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import group2.ictk59.moviedatabase.R;
 import group2.ictk59.moviedatabase.RESTServiceApplication;
@@ -76,7 +82,7 @@ public class RatedMovieListRecyclerViewAdapter extends RecyclerView.Adapter<Recy
                 viewHolder = new MovieViewHolder(v1);
                 break;
             case ACTOR:
-                View v2 = inflater.inflate(R.layout.actor_item, viewGroup, false);
+                View v2 = inflater.inflate(R.layout.aged_actor_item, viewGroup, false);
                 viewHolder = new ActorViewHolder(v2);
                 break;
         }
@@ -156,7 +162,39 @@ public class RatedMovieListRecyclerViewAdapter extends RecyclerView.Adapter<Recy
             holder.tvFullName.setText(actor.getName());
             Movie item = actor.getKnownFor().get(0);
             holder.tvKnownFor.setText("Known for: " + item.getTitle() + ", " + item.getYear());
+
+            DateFormat fromData = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+            try {
+                Date birthday = fromData.parse(actor.getBirthday());
+                if (actor.getDeathday().isEmpty()){
+                    Date currentDate = new Date();
+                    int age = getDiffYears(birthday, currentDate);
+                    holder.tvAge.setText("(" + age + ")");
+                }else{
+                    Date deathday = fromData.parse(actor.getDeathday());
+                    holder.tvAge.setText("(" + getCalendar(birthday).get(Calendar.YEAR)+ "-" + getCalendar(deathday).get(Calendar.YEAR)+ ")");
+                }
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
         }
+    }
+
+    private int getDiffYears(Date first, Date last) {
+        Calendar a = getCalendar(first);
+        Calendar b = getCalendar(last);
+        int diff = b.get(Calendar.YEAR) - a.get(Calendar.YEAR);
+        if (a.get(Calendar.MONTH) > b.get(Calendar.MONTH) ||
+                (a.get(Calendar.MONTH) == b.get(Calendar.MONTH) && a.get(Calendar.DATE) > b.get(Calendar.DATE))) {
+            diff--;
+        }
+        return diff;
+    }
+
+    private Calendar getCalendar(Date date) {
+        Calendar cal = Calendar.getInstance(Locale.US);
+        cal.setTime(date);
+        return cal;
     }
 
     public void loadNewData(List<Object> newData){
@@ -172,6 +210,7 @@ public class RatedMovieListRecyclerViewAdapter extends RecyclerView.Adapter<Recy
         private ImageView ivProfilePicture;
         private TextView tvFullName;
         private TextView tvKnownFor;
+        private TextView tvAge;
 
         private ActorViewHolder(View view) {
             super(view);
@@ -187,6 +226,7 @@ public class RatedMovieListRecyclerViewAdapter extends RecyclerView.Adapter<Recy
             ivProfilePicture = (ImageView)view.findViewById(R.id.ivProfilePicture);
             tvFullName = (TextView)view.findViewById(R.id.tvFullName);
             tvKnownFor = (TextView)view.findViewById(R.id.tvKnownFor);
+            tvAge = (TextView)view.findViewById(R.id.tvAge);
         }
     }
 

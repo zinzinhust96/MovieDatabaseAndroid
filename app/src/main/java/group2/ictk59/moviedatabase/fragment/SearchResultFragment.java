@@ -116,8 +116,8 @@ public class SearchResultFragment extends BaseFragment implements RecyclerViewCl
         }
     }
 
-    public class ProcessMovieList extends GetMovieJsonData {
-        public ProcessMovieList(String name) {
+    private class ProcessMovieList extends GetMovieJsonData {
+        private ProcessMovieList(String name) {
             super(name);
         }
 
@@ -126,7 +126,7 @@ public class SearchResultFragment extends BaseFragment implements RecyclerViewCl
             processData.execute();
         }
 
-        public class ProcessData extends DownloadJsonData {
+        private class ProcessData extends DownloadJsonData {
 
             @Override
             protected void onPreExecute() {
@@ -147,9 +147,9 @@ public class SearchResultFragment extends BaseFragment implements RecyclerViewCl
         }
     }
 
-    public class ProcessActorList extends GetActorJsonData {
-        public ProcessActorList(String name) {
-            super(name);
+    private class ProcessActorList extends GetActorJsonData {
+        private ProcessActorList(String name) {
+            super(name, false);
         }
 
         public void execute() {
@@ -157,7 +157,7 @@ public class SearchResultFragment extends BaseFragment implements RecyclerViewCl
             processData.execute();
         }
 
-        public class ProcessData extends DownloadJsonData {
+        private class ProcessData extends DownloadJsonData {
             @Override
             protected void onPostExecute(String webData) {
                 super.onPostExecute(webData);
