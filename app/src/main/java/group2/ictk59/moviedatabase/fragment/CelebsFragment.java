@@ -82,6 +82,7 @@ public class CelebsFragment extends BaseFragment implements RecyclerViewClickLis
                         mCallback.toActorListFragment("popularity", true);
                         break;
                     case 1:
+                        ft.replace(R.id.content_frame, new BornTodayFragment()).addToBackStack(null).commit();
                         break;
                 }
                 ((AppCompatActivity)getActivity()).getSupportActionBar().setTitle(actorsItems.get(position));

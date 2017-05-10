@@ -61,6 +61,14 @@ public class RESTServiceApplication extends Application {
         this.watchlistId = watchlistId;
     }
 
+    public void addToWatchlistId(Long id){
+        watchlistId.add(id);
+    }
+
+    public void removeFromWatchlistId(Long id){
+        watchlistId.remove(id);
+    }
+
     public LongSparseArray<String> getRatedMovies() {
         return ratedMovies;
     }

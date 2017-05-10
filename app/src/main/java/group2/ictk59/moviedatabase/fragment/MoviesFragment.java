@@ -121,7 +121,7 @@ public class MoviesFragment extends BaseFragment implements RecyclerViewClickLis
             ProcessMovieList processMovieList = new ProcessMovieList("", "year", true, "10");
             processMovieList.execute();
         }
-        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle("Movie");
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle("Movies");
     }
 
     @Override

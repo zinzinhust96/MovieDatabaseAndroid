@@ -31,8 +31,6 @@ import com.koushikdutta.ion.Ion;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.List;
-
 import group2.ictk59.moviedatabase.Constants;
 import group2.ictk59.moviedatabase.R;
 import group2.ictk59.moviedatabase.RESTServiceApplication;
@@ -229,9 +227,7 @@ public class MainActivity extends BaseActivity
                                 String status = jsonObject.getString(Constants.STATUS);
                                 if (status.equalsIgnoreCase(Constants.SUCCESS)){
                                     //add to list<long> watchlistId
-                                    List<Long> watchlistId = RESTServiceApplication.getInstance().getWatchlistId();
-                                    watchlistId.add(id);
-                                    RESTServiceApplication.getInstance().setWatchlistId(watchlistId);
+                                    RESTServiceApplication.getInstance().addToWatchlistId(id);
                                 }
                             } catch (JSONException e1) {
                                 e1.printStackTrace();
@@ -261,9 +257,7 @@ public class MainActivity extends BaseActivity
                             String status = jsonObject.getString(Constants.STATUS);
                             if (status.equalsIgnoreCase(Constants.SUCCESS)){
                                 //add to list<long> watchlistId
-                                List<Long> watchlistId = RESTServiceApplication.getInstance().getWatchlistId();
-                                watchlistId.remove(id);
-                                RESTServiceApplication.getInstance().setWatchlistId(watchlistId);
+                                RESTServiceApplication.getInstance().removeFromWatchlistId(id);
                             }
                         } catch (JSONException e1) {
                             e1.printStackTrace();

@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.annotation.Nullable;
@@ -136,8 +135,39 @@ public class MovieProfileFragment extends Fragment implements RecyclerViewClickL
                 if (fromUser) {
                     if (RESTServiceApplication.getInstance().isLogin()) {
                         tvYourRating.setText("Your rating: " + rating + "/10");
-                        UpdateAfterRate updateAfterRate = new UpdateAfterRate();
-                        updateAfterRate.execute(rating);
+
+                        LongSparseArray<String> ratedMovies = RESTServiceApplication.getInstance().getRatedMovies();
+                        ratedMovies.put(id, String.valueOf(rating));
+                        RESTServiceApplication.getInstance().setRatedMovies(ratedMovies);
+
+                        String accessToken = RESTServiceApplication.getInstance().getAccessToken();
+                        final JsonObject json = new JsonObject();
+                        json.addProperty(Constants.ACTION, Constants.RATE_MOVIE);
+                        json.addProperty(Constants.MOVIE_ID, id.toString());
+                        json.addProperty(Constants.RATING, String.valueOf(rating));
+                        Ion.with(getActivity())
+                                .load(Constants.BASE_URL + "/api/user/action?" + Constants.ACCESS_TOKEN + "=" + accessToken)
+                                .setJsonObjectBody(json)
+                                .asString()
+                                .setCallback(new FutureCallback<String>() {
+                                    @Override
+                                    public void onCompleted(Exception e, String result) {
+                                        try {
+                                            JSONObject jsonObject = new JSONObject(result);
+                                            String status = jsonObject.getString(Constants.STATUS);
+                                            if (status.equalsIgnoreCase(Constants.SUCCESS)) {
+                                                tvRating.setText(jsonObject.getString(Constants.RATING) + "/10");
+                                                tvVotes.setText("(" + jsonObject.getString(Constants.VOTES) + " votes)");
+                                            }
+                                            Toast.makeText(getActivity(), jsonObject.getString(Constants.MESSAGE), Toast.LENGTH_SHORT).show();
+                                        } catch (JSONException e1) {
+                                            e1.printStackTrace();
+                                        } catch (NullPointerException e1) {
+                                            e1.printStackTrace();
+                                        }
+                                    }
+                                });
+
                     } else {
                         Toast.makeText(getActivity(), R.string.login_alert, Toast.LENGTH_SHORT).show();
                         startActivity(new Intent(getActivity(), LoginActivity.class));
@@ -172,15 +202,15 @@ public class MovieProfileFragment extends Fragment implements RecyclerViewClickL
     @Override
     public void onResume() {
         super.onResume();
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                SystemClock.sleep(500);
-                getActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Long id = getArguments().getLong(Constants.ID);
-                        if (RESTServiceApplication.getInstance().isLogin()) {
+        if (RESTServiceApplication.getInstance().isLogin()){
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    SystemClock.sleep(500);
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Long id = getArguments().getLong(Constants.ID);
                             List<Long> watchlistId = RESTServiceApplication.getInstance().getWatchlistId();
                             if (watchlistId != null) {
                                 if (watchlistId.contains(id)) {
@@ -197,10 +227,13 @@ public class MovieProfileFragment extends Fragment implements RecyclerViewClickL
                                 }
                             }
                         }
-                    }
-                });
-            }
-        }).start();
+                    });
+                }
+            }).start();
+        }else{
+            showAddButton(true);
+            ratingBar.setRating(0);
+        }
         ProcessMovieList processMovieList = new ProcessMovieList(id);
         processMovieList.execute();
         ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle("Movie Profile");
@@ -253,55 +286,6 @@ public class MovieProfileFragment extends Fragment implements RecyclerViewClickL
             protected String doInBackground(String... strings) {
                 return super.doInBackground(strings);
             }
-        }
-    }
-
-    private class UpdateAfterRate extends AsyncTask<Float, Void, Long> {
-        @Override
-        protected void onPreExecute() {
-        }
-
-        @Override
-        protected Long doInBackground(Float... params) {
-            Float rating = params[0];
-            //add to hashmap<long, string> ratedMovies
-            LongSparseArray<String> ratedMovies = RESTServiceApplication.getInstance().getRatedMovies();
-            ratedMovies.put(id, String.valueOf(rating));
-            RESTServiceApplication.getInstance().setRatedMovies(ratedMovies);
-
-            String accessToken = RESTServiceApplication.getInstance().getAccessToken();
-            final JsonObject json = new JsonObject();
-            json.addProperty(Constants.ACTION, Constants.RATE_MOVIE);
-            json.addProperty(Constants.MOVIE_ID, id.toString());
-            json.addProperty(Constants.RATING, String.valueOf(rating));
-            Ion.with(getActivity())
-                    .load(Constants.BASE_URL + "/api/user/action?" + Constants.ACCESS_TOKEN + "=" + accessToken)
-                    .setJsonObjectBody(json)
-                    .asString()
-                    .setCallback(new FutureCallback<String>() {
-                        @Override
-                        public void onCompleted(Exception e, String result) {
-                            try {
-                                JSONObject jsonObject = new JSONObject(result);
-                                String status = jsonObject.getString(Constants.STATUS);
-                                Toast.makeText(getActivity(), jsonObject.getString(Constants.MESSAGE), Toast.LENGTH_SHORT).show();
-                                if (status.equalsIgnoreCase(Constants.SUCCESS)) {
-                                    return;
-                                }
-                            } catch (JSONException e1) {
-                                e1.printStackTrace();
-                            } catch (NullPointerException e1) {
-                                e1.printStackTrace();
-                            }
-                        }
-                    });
-            return id;
-        }
-
-        @Override
-        protected void onPostExecute(Long id) {
-            ProcessMovieList processMovieList = new ProcessMovieList(id);
-            processMovieList.execute();
         }
     }
 }
