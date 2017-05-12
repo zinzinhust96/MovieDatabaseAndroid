@@ -74,7 +74,7 @@ public class BornTodayFragment extends Fragment implements RecyclerViewClickList
     private void setUpView(View view){
         rvActorList = (RecyclerView)view.findViewById(R.id.rvActorList);
         rvActorList.setLayoutManager(new LinearLayoutManager(getActivity().getApplicationContext()));
-        mAdapter = new RatedMovieListRecyclerViewAdapter(getActivity(), new ArrayList<Object>(), this);
+        mAdapter = new RatedMovieListRecyclerViewAdapter(getActivity(), new ArrayList<>(), this);
         rvActorList.setAdapter(mAdapter);
         tvMonthDay = (TextView)view.findViewById(R.id.tvMonthDay);
         tvNoResults = (TextView)view.findViewById(R.id.tvNoResults);
@@ -128,8 +128,7 @@ public class BornTodayFragment extends Fragment implements RecyclerViewClickList
         DateFormat myFormat = new SimpleDateFormat("MM-dd", Locale.US);
         try {
             Date date = fromData.parse(day + "-" + month);
-            String result = myFormat.format(date);
-            return result;
+            return myFormat.format(date);
         } catch (ParseException e) {
             e.printStackTrace();
         }

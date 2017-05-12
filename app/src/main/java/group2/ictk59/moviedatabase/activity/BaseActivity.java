@@ -1,5 +1,6 @@
 package group2.ictk59.moviedatabase.activity;
 
+import android.content.Context;
 import android.support.v4.util.LongSparseArray;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -45,8 +46,8 @@ public abstract class BaseActivity extends AppCompatActivity {
         return mToolbar;
     }
 
-    protected void getRESTApplicationInfo(String accessToken){
-        Ion.with(getApplicationContext())
+    public static void getRESTApplicationInfo(String accessToken, Context context){
+        Ion.with(context)
                 .load("GET", Constants.BASE_URL + "/api/user?" + Constants.ACCESS_TOKEN + "=" + accessToken)
                 .asString()
                 .setCallback(new FutureCallback<String>() {

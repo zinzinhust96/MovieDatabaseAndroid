@@ -202,7 +202,7 @@ public class MovieProfileFragment extends Fragment implements RecyclerViewClickL
     @Override
     public void onResume() {
         super.onResume();
-        if (RESTServiceApplication.getInstance().isLogin()){
+        if (RESTServiceApplication.getInstance().isLogin()) {
             new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -212,25 +212,25 @@ public class MovieProfileFragment extends Fragment implements RecyclerViewClickL
                         public void run() {
                             Long id = getArguments().getLong(Constants.ID);
                             List<Long> watchlistId = RESTServiceApplication.getInstance().getWatchlistId();
-                            if (watchlistId != null) {
-                                if (watchlistId.contains(id)) {
-                                    showAddButton(false);
-                                }
+                            if (watchlistId != null && watchlistId.contains(id)) {
+                                showAddButton(false);
+                            }else{
+                                showAddButton(true);
                             }
                             //Rating bar update view
                             LongSparseArray<String> ratedMovies = RESTServiceApplication.getInstance().getRatedMovies();
-                            if (ratedMovies != null) {
-                                if (ratedMovies.get(id) != null) {
-                                    String rating = ratedMovies.get(id);
-                                    tvYourRating.setText("Your rating: " + rating + "/10");
-                                    ratingBar.setRating(Float.parseFloat(rating));
-                                }
+                            if (ratedMovies != null && ratedMovies.get(id) != null) {
+                                String rating = ratedMovies.get(id);
+                                tvYourRating.setText("Your rating: " + rating + "/10");
+                                ratingBar.setRating(Float.parseFloat(rating));
+                            }else{
+                                ratingBar.setRating(0);
                             }
                         }
                     });
                 }
             }).start();
-        }else{
+        } else {
             showAddButton(true);
             ratingBar.setRating(0);
         }

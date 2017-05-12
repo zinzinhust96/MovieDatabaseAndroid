@@ -94,7 +94,7 @@ public class LoginActivity extends BaseActivity {
                                             editor.putBoolean(Constants.ISLOGIN, true);
                                             editor.apply();
 
-                                            getRESTApplicationInfo(accessToken);
+                                            getRESTApplicationInfo(accessToken, LoginActivity.this);
 
                                             Toast.makeText(LoginActivity.this, "Hello " + username + "!", Toast.LENGTH_LONG).show();
                                             finish();

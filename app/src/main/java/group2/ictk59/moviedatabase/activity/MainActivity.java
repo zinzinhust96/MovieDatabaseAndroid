@@ -162,7 +162,7 @@ public class MainActivity extends BaseActivity
                                 String accessToken = jsonObject.getString(Constants.NEW_ACCESS_TOKEN);
                                 RESTServiceApplication.getInstance().setAccessToken(accessToken);
                                 Log.d(Constants.TOKEN, Constants.BASE_URL + "/api/user?" + Constants.ACCESS_TOKEN + "=" + accessToken);
-                                getRESTApplicationInfo(accessToken);
+                                getRESTApplicationInfo(accessToken, MainActivity.this);
                             }
                         } catch (JSONException e1) {
                             e1.printStackTrace();

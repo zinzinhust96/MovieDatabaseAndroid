@@ -31,6 +31,7 @@ import group2.ictk59.moviedatabase.Constants;
 import group2.ictk59.moviedatabase.GetUserWatchlistJsonData;
 import group2.ictk59.moviedatabase.R;
 import group2.ictk59.moviedatabase.RESTServiceApplication;
+import group2.ictk59.moviedatabase.activity.BaseActivity;
 import group2.ictk59.moviedatabase.model.Movie;
 import group2.ictk59.moviedatabase.recycleview.ComplexRecyclerViewAdapter;
 import group2.ictk59.moviedatabase.recycleview.RecyclerViewClickListener;
@@ -201,6 +202,7 @@ public class WatchlistFragment extends Fragment implements RecyclerViewClickList
             protected void onPreExecute() {
                 mProgressBar.setVisibility(View.VISIBLE);
                 rvMovieList.setVisibility(View.GONE);
+                BaseActivity.getRESTApplicationInfo(RESTServiceApplication.getInstance().getAccessToken(), getActivity());
             }
 
             @Override
