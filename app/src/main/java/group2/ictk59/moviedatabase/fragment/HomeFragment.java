@@ -1,10 +1,10 @@
 package group2.ictk59.moviedatabase.fragment;
 
-import android.app.ProgressDialog;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.os.SystemClock;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.view.KeyEvent;
@@ -15,6 +15,7 @@ import android.view.ViewGroup;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.ProgressBar;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -30,8 +31,8 @@ import group2.ictk59.moviedatabase.R;
 
 public class HomeFragment extends BaseFragment {
 
-    private ProgressDialog progressDialog;
     private WebView mWebView;
+    private ProgressBar progressBar;
     String url;
 
     private Handler handler = new Handler(){
@@ -52,15 +53,17 @@ public class HomeFragment extends BaseFragment {
         if (!isNetworkConnected()){
             AlertDialogWrapper.showAlertDialog(getActivity());
         }
+        progressBar = (ProgressBar)rootView.findViewById(R.id.progress_bar);
         mWebView = (WebView)rootView.findViewById(R.id.web_view);
         mWebView.setWebViewClient(new MyWebViewClient());
+        mWebView.setBackgroundColor(getResources().getColor(R.color.backgroundColor));
         return rootView;
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        new HomepageTask().execute("http://www.hollywoodreporter.com/topic/movies");
+        new HomepageTask().execute("http://www.darkhorizons.com/section/movie-news/");
         ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle("Home");
     }
 
@@ -72,6 +75,7 @@ public class HomeFragment extends BaseFragment {
 
         @Override
         protected void onPreExecute() {
+            progressBar.setVisibility(View.VISIBLE);
         }
 
         @Override
@@ -83,11 +87,19 @@ public class HomeFragment extends BaseFragment {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            document.getElementsByTag("header").remove();
-            document.getElementsByClass("site-header").remove();
-            document.getElementsByClass("site-header__placeholder").remove();
-            document.getElementsByClass("site-header-links").remove();
-            document.getElementsByTag("footer").remove();
+            document.getElementsByClass("td-mobile-nav").remove();
+            document.getElementsByClass("td-search-wrap-mob").remove();
+            document.getElementsByClass("td-header-top-menu-full td-container-wrap ").remove();
+            document.getElementsByClass("td-banner-wrap-full td-container-wrap ").remove();
+            document.getElementsByClass("td-header-menu-wrap").remove();
+            document.getElementsByClass("td-search-wrapper").remove();
+            document.getElementsByClass("header-search-wrap").remove();
+
+            document.getElementsByClass("td-g-rec td-g-rec-id-sidebar ").remove();
+            document.getElementsByClass("td-block-title-wrap").remove();
+            document.getElementsByClass("td_block_inner").remove();
+            document.getElementsByClass("td-next-prev-wrap").remove();
+            document.getElementsByClass("td-sub-footer-container td-container-wrap ").remove();
             return document;
         }
 
@@ -105,10 +117,21 @@ public class HomeFragment extends BaseFragment {
                         handler.sendEmptyMessage(1);
                         return true;
                     }
-
                     return false;
                 }
             });
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    SystemClock.sleep(1000);
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            progressBar.setVisibility(View.GONE);
+                        }
+                    });
+                }
+            }).start();
         }
     }
 
