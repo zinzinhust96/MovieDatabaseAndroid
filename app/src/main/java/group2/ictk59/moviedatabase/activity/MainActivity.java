@@ -49,8 +49,6 @@ import group2.ictk59.moviedatabase.fragment.WatchlistFragment;
 public class MainActivity extends BaseActivity
         implements NavigationView.OnNavigationItemSelectedListener, OnItemSelectedListener {
 
-    public static final String LOG_TAG = "Main Activity";
-
     private SearchView mSearchView;
     private MenuItem searchItem;
 
@@ -73,6 +71,7 @@ public class MainActivity extends BaseActivity
         drawer.addDrawerListener(toggle);
         toggle.syncState();
         getSupportFragmentManager().addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener() {
+            @SuppressWarnings("ConstantConditions")
             @Override
             public void onBackStackChanged() {
                 if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
@@ -101,6 +100,7 @@ public class MainActivity extends BaseActivity
         FragmentManager fm = getSupportFragmentManager();
         fm.beginTransaction().replace(R.id.content_frame, new HomeFragment()).commit();
 
+        //initialize shared preferences
         app_preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         boolean isLogin = app_preferences.getBoolean(Constants.ISLOGIN, false);
 
@@ -110,7 +110,9 @@ public class MainActivity extends BaseActivity
 
         navigationView = (NavigationView) findViewById(R.id.nav_view);
         //default item check
-        navigationView.setCheckedItem(R.id.nav_home);
+        if (navigationView != null) {
+            navigationView.setCheckedItem(R.id.nav_home);
+        }
     }
 
     @Override
@@ -123,7 +125,7 @@ public class MainActivity extends BaseActivity
             profilename.setText(RESTServiceApplication.getInstance().getUsername());
         }else{
             showLogin(true);
-            profilename.setText("Sign in to IMDb");
+            profilename.setText(R.string.navbar_sign_in);
         }
 
         //navigation item listener
@@ -164,9 +166,7 @@ public class MainActivity extends BaseActivity
                                 Log.d(Constants.TOKEN, Constants.BASE_URL + "/api/user?" + Constants.ACCESS_TOKEN + "=" + accessToken);
                                 getRESTApplicationInfo(accessToken, MainActivity.this);
                             }
-                        } catch (JSONException e1) {
-                            e1.printStackTrace();
-                        } catch (NullPointerException e1){
+                        } catch (JSONException | NullPointerException e1) {
                             e1.printStackTrace();
                         }
                     }
@@ -301,10 +301,12 @@ public class MainActivity extends BaseActivity
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START);
-        } else {
-            super.onBackPressed();
+        if (drawer != null) {
+            if (drawer.isDrawerOpen(GravityCompat.START)) {
+                drawer.closeDrawer(GravityCompat.START);
+            } else {
+                super.onBackPressed();
+            }
         }
     }
 
@@ -352,8 +354,6 @@ public class MainActivity extends BaseActivity
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
         return super.onOptionsItemSelected(item);
     }
 
@@ -401,7 +401,9 @@ public class MainActivity extends BaseActivity
             navigationView.setCheckedItem(R.id.nav_home);
         }
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        drawer.closeDrawer(GravityCompat.START);
+        if (drawer != null) {
+            drawer.closeDrawer(GravityCompat.START);
+        }
         return true;
     }
 }

@@ -20,10 +20,6 @@ import group2.ictk59.moviedatabase.Constants;
 import group2.ictk59.moviedatabase.R;
 import group2.ictk59.moviedatabase.RESTServiceApplication;
 
-/**
- * Created by ZinZin on 3/25/2017.
- */
-
 public abstract class BaseActivity extends AppCompatActivity {
 
     protected Toolbar mToolbar;
@@ -41,6 +37,7 @@ public abstract class BaseActivity extends AppCompatActivity {
     protected Toolbar activateToolbarWithHomeEnable(){
         activateToolbar();
         if (mToolbar != null){
+            //noinspection ConstantConditions
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
         return mToolbar;
@@ -70,7 +67,7 @@ public abstract class BaseActivity extends AppCompatActivity {
 
                             JSONArray jsonRatedMovies = jsonAttribute.getJSONObject(Constants.RATED_MOVIES)
                                     .getJSONArray(Constants.DATA);
-                            LongSparseArray<String> ratedMovies = new LongSparseArray<String>();
+                            LongSparseArray<String> ratedMovies = new LongSparseArray<>();
                             for (int i = 0; i < jsonRatedMovies.length(); i++){
                                 JSONObject jsonRatedMoviesAtt = jsonRatedMovies.getJSONObject(i)
                                         .getJSONObject(Constants.ATTRIBUTES);

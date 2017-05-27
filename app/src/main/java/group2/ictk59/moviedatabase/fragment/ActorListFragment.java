@@ -21,13 +21,8 @@ import group2.ictk59.moviedatabase.model.Actor;
 import group2.ictk59.moviedatabase.recycleview.ListRecyclerViewAdapter;
 import group2.ictk59.moviedatabase.recycleview.RecyclerViewClickListener;
 
-/**
- * Created by ZinZin on 4/1/2017.
- */
-
 public class ActorListFragment extends BaseFragment implements RecyclerViewClickListener {
 
-    private RecyclerView rvActorList;
     private ListRecyclerViewAdapter mAdapter;
     private ProgressBar mProgressBar;
     OnItemSelectedListener mCallback;
@@ -52,7 +47,7 @@ public class ActorListFragment extends BaseFragment implements RecyclerViewClick
         View rootView = inflater.inflate(R.layout.fragment_actor_list, container, false);
 
         mProgressBar = (ProgressBar)rootView.findViewById(R.id.progress_bar);
-        rvActorList = (RecyclerView)rootView.findViewById(R.id.rvActorList);
+        RecyclerView rvActorList = (RecyclerView) rootView.findViewById(R.id.rvActorList);
         rvActorList.setLayoutManager(new LinearLayoutManager(getActivity().getApplicationContext()));
 
         mAdapter = new ListRecyclerViewAdapter(getActivity(), new ArrayList<>(), this);
@@ -67,6 +62,7 @@ public class ActorListFragment extends BaseFragment implements RecyclerViewClick
         String orderBy = getArguments().getString("orderby");
         Boolean desc = getArguments().getBoolean("desc");
         if (orderBy != null){
+            //noinspection ConstantConditions
             ((AppCompatActivity)getActivity()).getSupportActionBar().setTitle("Most Popular Celebrities");
         }
         if (!isNetworkConnected()){
@@ -88,8 +84,8 @@ public class ActorListFragment extends BaseFragment implements RecyclerViewClick
 
     }
 
-    public class ProcessActorList extends GetActorJsonData {
-        public ProcessActorList(String orderBy, boolean desc, String limit) {
+    private class ProcessActorList extends GetActorJsonData {
+        private ProcessActorList(String orderBy, boolean desc, String limit) {
             super(orderBy, desc, limit);
         }
 
@@ -98,7 +94,7 @@ public class ActorListFragment extends BaseFragment implements RecyclerViewClick
             processData.execute();
         }
 
-        public class ProcessData extends GetActorJsonData.DownloadJsonData {
+        private class ProcessData extends GetActorJsonData.DownloadJsonData {
             @Override
             protected void onPreExecute() {
                 mProgressBar.setVisibility(View.VISIBLE);

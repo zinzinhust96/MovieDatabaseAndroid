@@ -36,10 +36,6 @@ import group2.ictk59.moviedatabase.model.Movie;
 import group2.ictk59.moviedatabase.recycleview.AdapterHorizontal;
 import group2.ictk59.moviedatabase.recycleview.RecyclerViewClickListener;
 
-/**
- * Created by ZinZin on 4/13/2017.
- */
-
 public class ActorProfileFragment extends Fragment implements RecyclerViewClickListener{
 
     AdapterHorizontal mAdapter;
@@ -158,6 +154,7 @@ public class ActorProfileFragment extends Fragment implements RecyclerViewClickL
 
         ProcessActor processActor = new ProcessActor(id);
         processActor.execute();
+        //noinspection ConstantConditions
         ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle("Actor Profile");
     }
 
@@ -177,8 +174,8 @@ public class ActorProfileFragment extends Fragment implements RecyclerViewClickL
         }
     }
 
-    public class ProcessActor extends GetActorJsonData {
-        public ProcessActor(Long id) {
+    private class ProcessActor extends GetActorJsonData {
+        private ProcessActor(Long id) {
             super(id);
         }
 
@@ -187,7 +184,7 @@ public class ActorProfileFragment extends Fragment implements RecyclerViewClickL
             processData.execute();
         }
 
-        public class ProcessData extends DownloadJsonData {
+        private class ProcessData extends DownloadJsonData {
             @Override
             protected void onPreExecute() {
                 progressDialog = ProgressDialog.show(getActivity(), "", "Retrieving latest data...", true);

@@ -83,47 +83,8 @@ public class RegisterActivity extends BaseActivity {
                     focusView.requestFocus();
                     showProgress(false);
                 }else{
-                    final JsonObject user = new JsonObject();
-                    user.addProperty(Constants.USERNAME, username);
-                    user.addProperty(Constants.PASSWORD, password);
-                    user.addProperty(Constants.EMAIL, email);
-
-                    Ion.with(getApplicationContext())
-                            .load(Constants.BASE_URL + "/api/register")
-                            .setJsonObjectBody(user)
-                            .asString()
-                            .setCallback(new FutureCallback<String>() {
-                                @Override
-                                public void onCompleted(Exception e, String result) {
-                                    try {
-                                        JSONObject jsonObject = new JSONObject(result);
-                                        String status = jsonObject.getString(Constants.STATUS);
-                                        if (status.equalsIgnoreCase("success")){
-                                            String accessToken = jsonObject.getString("access_token");
-                                            RESTServiceApplication.getInstance().setUsername(username);
-                                            RESTServiceApplication.getInstance().setAccessToken(accessToken);
-                                            RESTServiceApplication.getInstance().setWatchlistId(new ArrayList<Long>());
-                                            RESTServiceApplication.getInstance().setRatedMovies(new LongSparseArray<String>());
-                                            RESTServiceApplication.getInstance().setLogin(true);
-//                                            Log.i("LOG", jsonObject.getString("access_token"));
-                                            SharedPreferences app_preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-                                            SharedPreferences.Editor editor = app_preferences.edit();
-                                            editor.putString(Constants.USERNAME, username);
-                                            editor.putString(Constants.REFRESH_TOKEN, jsonObject.getString(Constants.REFRESH_TOKEN));
-                                            editor.putBoolean(Constants.ISLOGIN, true);
-                                            editor.apply();
-                                            Toast.makeText(RegisterActivity.this, "Successfully registered. Hello " + username + "!", Toast.LENGTH_LONG).show();
-                                            finish();
-                                        }else{
-                                            showProgress(false);
-                                            Toast.makeText(RegisterActivity.this, jsonObject.getString("message"), Toast.LENGTH_LONG).show();
-                                        }
-                                    } catch (JSONException e1) {
-                                        e1.printStackTrace();
-                                    }
-
-                                }
-                            });
+                    //make the HTTP Request
+                    attemptToRegister(username, password, email);
                 }
             }
         });
@@ -136,9 +97,54 @@ public class RegisterActivity extends BaseActivity {
         });
     }
 
+    @SuppressWarnings("ConstantConditions")
     private void showProgress(final boolean isShow){
         findViewById(R.id.login_progress).setVisibility(isShow ? View.VISIBLE : View.GONE);
         findViewById(R.id.loginForm).setVisibility(isShow ? View.GONE : View.VISIBLE);
+    }
+
+    private void attemptToRegister(final String username, String password, String email){
+        final JsonObject user = new JsonObject();
+        user.addProperty(Constants.USERNAME, username);
+        user.addProperty(Constants.PASSWORD, password);
+        user.addProperty(Constants.EMAIL, email);
+
+        Ion.with(getApplicationContext())
+                .load(Constants.BASE_URL + "/api/register")
+                .setJsonObjectBody(user)
+                .asString()
+                .setCallback(new FutureCallback<String>() {
+                    @Override
+                    public void onCompleted(Exception e, String result) {
+                        try {
+                            JSONObject jsonObject = new JSONObject(result);
+                            String status = jsonObject.getString(Constants.STATUS);
+                            if (status.equalsIgnoreCase("success")){
+                                String accessToken = jsonObject.getString("access_token");
+                                RESTServiceApplication.getInstance().setUsername(username);
+                                RESTServiceApplication.getInstance().setAccessToken(accessToken);
+                                RESTServiceApplication.getInstance().setWatchlistId(new ArrayList<Long>());
+                                RESTServiceApplication.getInstance().setRatedMovies(new LongSparseArray<String>());
+                                RESTServiceApplication.getInstance().setLogin(true);
+//                                            Log.i("LOG", jsonObject.getString("access_token"));
+                                SharedPreferences app_preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+                                SharedPreferences.Editor editor = app_preferences.edit();
+                                editor.putString(Constants.USERNAME, username);
+                                editor.putString(Constants.REFRESH_TOKEN, jsonObject.getString(Constants.REFRESH_TOKEN));
+                                editor.putBoolean(Constants.ISLOGIN, true);
+                                editor.apply();
+                                Toast.makeText(RegisterActivity.this, "Successfully registered. Hello " + username + "!", Toast.LENGTH_LONG).show();
+                                finish();
+                            }else{
+                                showProgress(false);
+                                Toast.makeText(RegisterActivity.this, jsonObject.getString("message"), Toast.LENGTH_LONG).show();
+                            }
+                        } catch (JSONException e1) {
+                            e1.printStackTrace();
+                        }
+
+                    }
+                });
     }
 
     private boolean isPasswordValid(String password){

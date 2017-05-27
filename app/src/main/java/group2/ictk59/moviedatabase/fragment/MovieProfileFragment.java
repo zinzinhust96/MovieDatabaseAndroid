@@ -140,33 +140,8 @@ public class MovieProfileFragment extends Fragment implements RecyclerViewClickL
                         ratedMovies.put(id, String.valueOf(rating));
                         RESTServiceApplication.getInstance().setRatedMovies(ratedMovies);
 
-                        String accessToken = RESTServiceApplication.getInstance().getAccessToken();
-                        final JsonObject json = new JsonObject();
-                        json.addProperty(Constants.ACTION, Constants.RATE_MOVIE);
-                        json.addProperty(Constants.MOVIE_ID, id.toString());
-                        json.addProperty(Constants.RATING, String.valueOf(rating));
-                        Ion.with(getActivity())
-                                .load(Constants.BASE_URL + "/api/user/action?" + Constants.ACCESS_TOKEN + "=" + accessToken)
-                                .setJsonObjectBody(json)
-                                .asString()
-                                .setCallback(new FutureCallback<String>() {
-                                    @Override
-                                    public void onCompleted(Exception e, String result) {
-                                        try {
-                                            JSONObject jsonObject = new JSONObject(result);
-                                            String status = jsonObject.getString(Constants.STATUS);
-                                            if (status.equalsIgnoreCase(Constants.SUCCESS)) {
-                                                tvRating.setText(jsonObject.getString(Constants.RATING) + "/10");
-                                                tvVotes.setText("(" + jsonObject.getString(Constants.VOTES) + " votes)");
-                                            }
-                                            Toast.makeText(getActivity(), jsonObject.getString(Constants.MESSAGE), Toast.LENGTH_SHORT).show();
-                                        } catch (JSONException e1) {
-                                            e1.printStackTrace();
-                                        } catch (NullPointerException e1) {
-                                            e1.printStackTrace();
-                                        }
-                                    }
-                                });
+                        //send HTTP request
+                        attemptToRateMovie(rating);
 
                     } else {
                         Toast.makeText(getActivity(), R.string.login_alert, Toast.LENGTH_SHORT).show();
@@ -175,6 +150,36 @@ public class MovieProfileFragment extends Fragment implements RecyclerViewClickL
                 }
             }
         });
+    }
+
+    private void attemptToRateMovie(float rating){
+        String accessToken = RESTServiceApplication.getInstance().getAccessToken();
+        final JsonObject json = new JsonObject();
+        json.addProperty(Constants.ACTION, Constants.RATE_MOVIE);
+        json.addProperty(Constants.MOVIE_ID, id.toString());
+        json.addProperty(Constants.RATING, String.valueOf(rating));
+        Ion.with(getActivity())
+                .load(Constants.BASE_URL + "/api/user/action?" + Constants.ACCESS_TOKEN + "=" + accessToken)
+                .setJsonObjectBody(json)
+                .asString()
+                .setCallback(new FutureCallback<String>() {
+                    @Override
+                    public void onCompleted(Exception e, String result) {
+                        try {
+                            JSONObject jsonObject = new JSONObject(result);
+                            String status = jsonObject.getString(Constants.STATUS);
+                            if (status.equalsIgnoreCase(Constants.SUCCESS)) {
+                                tvRating.setText(jsonObject.getString(Constants.RATING) + "/10");
+                                tvVotes.setText("(" + jsonObject.getString(Constants.VOTES) + " votes)");
+                            }
+                            Toast.makeText(getActivity(), jsonObject.getString(Constants.MESSAGE), Toast.LENGTH_SHORT).show();
+                        } catch (JSONException e1) {
+                            e1.printStackTrace();
+                        } catch (NullPointerException e1) {
+                            e1.printStackTrace();
+                        }
+                    }
+                });
     }
 
     private void updateView(final Movie movie) {

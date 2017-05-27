@@ -66,48 +66,8 @@ public class LoginActivity extends BaseActivity {
                     focusView.requestFocus();
                     showProgress(false);
                 }else{
-                    //magic happen
-                    final JsonObject user = new JsonObject();
-                    user.addProperty(Constants.USERNAME, username);
-                    user.addProperty(Constants.PASSWORD, password);
-
-                    Ion.with(getApplicationContext())
-                            .load(Constants.BASE_URL + "/api/user")
-                            .setJsonObjectBody(user)
-                            .asString()
-                            .setCallback(new FutureCallback<String>() {
-                                @Override
-                                public void onCompleted(Exception e, String result) {
-                                    try {
-                                        JSONObject jsonObject = new JSONObject(result);
-                                        String status = jsonObject.getString(Constants.STATUS);
-                                        if (status.equalsIgnoreCase(Constants.SUCCESS)){
-                                            String accessToken = jsonObject.getString(Constants.ACCESS_TOKEN);
-                                            RESTServiceApplication.getInstance().setUsername(username);
-                                            RESTServiceApplication.getInstance().setAccessToken(accessToken);
-                                            RESTServiceApplication.getInstance().setLogin(true);
-//                                            Log.i("LOG", jsonObject.getString("access_token"));
-                                            SharedPreferences app_preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-                                            SharedPreferences.Editor editor = app_preferences.edit();
-                                            editor.putString(Constants.USERNAME, username);
-                                            editor.putString(Constants.REFRESH_TOKEN, jsonObject.getString(Constants.REFRESH_TOKEN));
-                                            editor.putBoolean(Constants.ISLOGIN, true);
-                                            editor.apply();
-
-                                            getRESTApplicationInfo(accessToken, LoginActivity.this);
-
-                                            Toast.makeText(LoginActivity.this, "Hello " + username + "!", Toast.LENGTH_LONG).show();
-                                            finish();
-                                        }else{
-                                            showProgress(false);
-                                            Toast.makeText(LoginActivity.this, jsonObject.getString("message"), Toast.LENGTH_LONG).show();
-                                        }
-                                    } catch (JSONException e1) {
-                                        e1.printStackTrace();
-                                    }
-
-                                }
-                            });
+                    //make the HTTP Request
+                    attemptToLogIn(username, password);
                 }
             }
         });
@@ -120,9 +80,54 @@ public class LoginActivity extends BaseActivity {
         });
     }
 
+    @SuppressWarnings("ConstantConditions")
     private void showProgress(final boolean isShow){
         findViewById(R.id.login_progress).setVisibility(isShow ? View.VISIBLE : View.GONE);
         findViewById(R.id.loginForm).setVisibility(isShow ? View.GONE : View.VISIBLE);
+    }
+
+    private void attemptToLogIn(final String username, String password){
+        final JsonObject user = new JsonObject();
+        user.addProperty(Constants.USERNAME, username);
+        user.addProperty(Constants.PASSWORD, password);
+
+        Ion.with(getApplicationContext())
+                .load(Constants.BASE_URL + "/api/user")
+                .setJsonObjectBody(user)
+                .asString()
+                .setCallback(new FutureCallback<String>() {
+                    @Override
+                    public void onCompleted(Exception e, String result) {
+                        try {
+                            JSONObject jsonObject = new JSONObject(result);
+                            String status = jsonObject.getString(Constants.STATUS);
+                            if (status.equalsIgnoreCase(Constants.SUCCESS)){
+                                String accessToken = jsonObject.getString(Constants.ACCESS_TOKEN);
+                                RESTServiceApplication.getInstance().setUsername(username);
+                                RESTServiceApplication.getInstance().setAccessToken(accessToken);
+                                RESTServiceApplication.getInstance().setLogin(true);
+//                                            Log.i("LOG", jsonObject.getString("access_token"));
+                                SharedPreferences app_preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+                                SharedPreferences.Editor editor = app_preferences.edit();
+                                editor.putString(Constants.USERNAME, username);
+                                editor.putString(Constants.REFRESH_TOKEN, jsonObject.getString(Constants.REFRESH_TOKEN));
+                                editor.putBoolean(Constants.ISLOGIN, true);
+                                editor.apply();
+
+                                getRESTApplicationInfo(accessToken, LoginActivity.this);
+
+                                Toast.makeText(LoginActivity.this, "Hello " + username + "!", Toast.LENGTH_LONG).show();
+                                finish();
+                            }else{
+                                showProgress(false);
+                                Toast.makeText(LoginActivity.this, jsonObject.getString("message"), Toast.LENGTH_LONG).show();
+                            }
+                        } catch (JSONException e1) {
+                            e1.printStackTrace();
+                        }
+
+                    }
+                });
     }
 
     @Override

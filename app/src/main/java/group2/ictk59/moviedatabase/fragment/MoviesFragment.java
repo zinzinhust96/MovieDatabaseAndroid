@@ -34,7 +34,6 @@ import group2.ictk59.moviedatabase.recycleview.RecyclerViewClickListener;
 
 public class MoviesFragment extends BaseFragment implements RecyclerViewClickListener{
 
-    private ListView lvMoviesItems;
     private RecyclerView rvMovieHorizontal;
     private AdapterHorizontal mAdapter;
     private ProgressBar mProgressBar;
@@ -68,7 +67,7 @@ public class MoviesFragment extends BaseFragment implements RecyclerViewClickLis
         mAdapter = new AdapterHorizontal(getActivity(), new ArrayList<>(), this);
         rvMovieHorizontal.setAdapter(mAdapter);
 
-        lvMoviesItems = (ListView)rootView.findViewById(R.id.lvMoviesItems);
+        ListView lvMoviesItems = (ListView) rootView.findViewById(R.id.lvMoviesItems);
         final List<String> moviesItems = new ArrayList<>();
         moviesItems.add("Top Rated Movies");
         moviesItems.add("Lowest Rated Movies");
@@ -140,8 +139,8 @@ public class MoviesFragment extends BaseFragment implements RecyclerViewClickLis
         }
     }
 
-    public class ProcessMovieList extends GetMovieJsonData {
-        public ProcessMovieList(String genre, String orderBy, boolean desc, String limit) {
+    private class ProcessMovieList extends GetMovieJsonData {
+        private ProcessMovieList(String genre, String orderBy, boolean desc, String limit) {
             super(genre, orderBy, desc, limit);
         }
 
@@ -150,7 +149,7 @@ public class MoviesFragment extends BaseFragment implements RecyclerViewClickLis
             processData.execute();
         }
 
-        public class ProcessData extends GetMovieJsonData.DownloadJsonData {
+        private class ProcessData extends GetMovieJsonData.DownloadJsonData {
             @Override
             protected void onPreExecute() {
                 showProgressBar(true);
