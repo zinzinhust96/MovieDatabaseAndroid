@@ -101,7 +101,7 @@ public class CelebsFragment extends BaseFragment implements RecyclerViewClickLis
             ProcessActorList processMovieList = new ProcessActorList("popularity", true, "10");
             processMovieList.execute();
         }
-        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle("Celebs");
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle("Celebrities");
     }
 
     @Override

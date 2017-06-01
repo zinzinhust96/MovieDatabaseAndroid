@@ -124,12 +124,14 @@ public class HomeFragment extends BaseFragment {
                 @Override
                 public void run() {
                     SystemClock.sleep(1000);
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            progressBar.setVisibility(View.GONE);
-                        }
-                    });
+                    if(getActivity() != null) {
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                progressBar.setVisibility(View.GONE);
+                            }
+                        });
+                    }
                 }
             }).start();
         }
