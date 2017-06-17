@@ -215,6 +215,7 @@ public class MainActivity extends BaseActivity
         object.addProperty("action", "modify_watchlist");
         object.addProperty("movie_id", id.toString());
         if (RESTServiceApplication.getInstance().isLogin()){
+            Toast.makeText(this, "Added to watchlist!", Toast.LENGTH_SHORT).show();
             Ion.with(this)
                     .load(Constants.BASE_URL + "/api/user/action?" + Constants.ACCESS_TOKEN + "=" + RESTServiceApplication.getInstance().getAccessToken())
                     .setJsonObjectBody(object)

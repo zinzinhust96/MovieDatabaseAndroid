@@ -181,7 +181,6 @@ public class AdapterHorizontal extends RecyclerView.Adapter<RecyclerView.ViewHol
                     if (mListener != null){
                         mListener.onViewClicked(v, getAdapterPosition());
                         if (RESTServiceApplication.getInstance().isLogin()) {
-                            Toast.makeText(mContext, "Added to watchlist!", Toast.LENGTH_SHORT).show();
                             ivAdd.setVisibility(View.GONE);
                             ivRemove.setVisibility(View.VISIBLE);
                         }

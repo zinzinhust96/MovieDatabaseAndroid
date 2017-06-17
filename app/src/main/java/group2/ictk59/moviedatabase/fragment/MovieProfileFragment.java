@@ -113,7 +113,6 @@ public class MovieProfileFragment extends Fragment implements RecyclerViewClickL
             @Override
             public void onClick(View v) {
                 showAddButton(false);
-                Toast.makeText(getActivity(), "Added to watchlist!", Toast.LENGTH_SHORT).show();
                 mCallback.onViewAddSelected(id);
             }
         });
